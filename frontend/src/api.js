@@ -1,4 +1,5 @@
-export const API_BASE_URL = 'http://localhost:5000/api';
+const configuredApiUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, '');
+export const API_BASE_URL = configuredApiUrl || (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
 const listCache = new Map();
 const pendingLists = new Map();
 const CACHE_TTL = 5000;

@@ -1,3 +1,4 @@
+const cors = require('cors');
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const sharp = require('sharp');
@@ -8,16 +9,23 @@ const { generateToken, authenticateToken, requireRole } = require('./src/auth');
 const { state, getNextId } = require('./src/fallbackStore');
 
 const app = express();
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-});
+const allowedOrigins = new Set([
+  'https://ceylon-paradise-jizyk7hev-pasan-gunasinghe.vercel.app',
+  'http://localhost:5173',
+]);
+const corsOptions = {
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.has(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Origin is not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use('/uploads', express.static('uploads'));
 const PORT = process.env.PORT || 5000;
 let databaseReady = false;
