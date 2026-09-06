@@ -10,9 +10,13 @@ const { state, getNextId } = require('./src/fallbackStore');
 
 const app = express();
 app.use(cors({
-  origin: '*',
-  credentials: true
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+app.options('*', cors());
+app.use('/uploads', express.static('uploads'));
 const PORT = process.env.PORT || 5000;
 let databaseReady = false;
 
