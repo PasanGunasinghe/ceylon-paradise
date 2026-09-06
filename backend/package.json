@@ -1,0 +1,21 @@
+{
+  "name": "ceylon-paradise-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Ceylon Paradise Expeditions",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon --exec \"node --max-http-header-size=65536\" server.js",
+    "start": "node --max-http-header-size=65536 server.js",
+    "seed": "node seed-postgres.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "nodemon": "^3.1.4",
+    "pg": "^8.23.0",
+    "sharp": "^0.33.5"
+  }
+}
