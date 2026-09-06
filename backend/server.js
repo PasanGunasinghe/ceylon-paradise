@@ -1,4 +1,3 @@
-const cors = require('cors');
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const sharp = require('sharp');
@@ -9,13 +8,16 @@ const { generateToken, authenticateToken, requireRole } = require('./src/auth');
 const { state, getNextId } = require('./src/fallbackStore');
 
 const app = express();
-app.use(cors({
-  origin: true,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
-app.options('*', cors());
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 app.use('/uploads', express.static('uploads'));
 const PORT = process.env.PORT || 5000;
 let databaseReady = false;
