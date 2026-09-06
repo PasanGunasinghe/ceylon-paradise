@@ -9,17 +9,13 @@ const { generateToken, authenticateToken, requireRole } = require('./src/auth');
 const { state, getNextId } = require('./src/fallbackStore');
 
 const app = express();
+app.use(cors({
+  origin: '*',
+  credentials: true
+}));
 const PORT = process.env.PORT || 5000;
 let databaseReady = false;
 
-const corsOptions = {
-  origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-};
-
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use((req, res, next) => {
