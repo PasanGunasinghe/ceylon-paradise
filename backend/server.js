@@ -1,5 +1,5 @@
-const express = require('express');
 const cors = require('cors');
+const express = require('express');
 const bcrypt = require('bcryptjs');
 const sharp = require('sharp');
 require('dotenv').config();
