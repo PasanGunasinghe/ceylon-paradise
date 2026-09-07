@@ -33,6 +33,7 @@ export const apiClient = {
   updateRouteInquiry: (id, payload, token) => request(`/custom-route-inquiries/${id}`, { method: 'PUT', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
   deleteMapPin: (id, token) => request(`/mappins/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }),
   getBookings: (token) => request('/bookings', { headers: { Authorization: `Bearer ${token}` } }),
+  changeAdminPassword: (payload, token) => request('/admin/change-password', { method: 'PUT', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
   createBooking: (payload, token) => request('/bookings', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),
   getReviews: () => request('/reviews'),
   createMemory: (payload, token) => request('/memories', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) }),

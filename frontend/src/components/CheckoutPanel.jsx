@@ -106,16 +106,13 @@ export default function CheckoutPanel({ tour, onClose }) {
             <div className="bg-slate-50 rounded-2xl p-4">
               <p className="text-sm text-slate-500">Package</p>
               <p className="text-xl font-bold text-slate-900">{tour.title}</p>
-              <p className="text-brand font-semibold mt-2">${Number(tour.price).toFixed(2)} per guest</p>
             </div>
             <div className="grid grid-cols-2 gap-3 text-sm text-slate-600">
               <div className="bg-teal-50 rounded-xl p-3">Date: {booking.date || 'Not set'}</div>
               <div className="bg-teal-50 rounded-xl p-3">Guests: {booking.guests}</div>
             </div>
             <div className="border rounded-2xl p-4">
-              <div className="flex justify-between text-slate-700"><span>Subtotal</span><span>${Number(tour.price).toFixed(2)}</span></div>
               <div className="flex justify-between text-slate-700 mt-2"><span>Guests</span><span>x {booking.guests}</span></div>
-              <div className="flex justify-between text-xl font-bold text-slate-900 mt-4"><span>Total</span><span>${total.toFixed(2)}</span></div>
             </div>
           </div>
         );
@@ -164,7 +161,6 @@ export default function CheckoutPanel({ tour, onClose }) {
               <p><strong>Reference:</strong> {confirmation?.booking_reference || 'CP-' + Date.now().toString().slice(-6)}</p>
               <p><strong>Tour:</strong> {tour.title}</p>
               <p><strong>Date:</strong> {booking.date}</p>
-              <p><strong>Total:</strong> ${total.toFixed(2)}</p>
             </div>
           </div>
         );
@@ -193,7 +189,6 @@ export default function CheckoutPanel({ tour, onClose }) {
         <div className="bg-teal-50 border border-teal-100 rounded-2xl p-4 mb-5">
           <p className="text-sm text-slate-500">Selected package</p>
           <p className="text-xl font-bold">{tour.title}</p>
-          <p className="text-brand font-semibold">${Number(tour.price).toFixed(2)} / guest</p>
         </div>
 
         {renderStep()}

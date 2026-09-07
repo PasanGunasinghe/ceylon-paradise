@@ -160,7 +160,6 @@ export default function HomePage({ authUser, destinations = [], tours = [], onBo
                 <div className="p-6">
                   <div className="flex items-center justify-between gap-3">
                     <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-800">{tour.category || 'Tour'}</span>
-                    <span className="text-2xl font-black text-slate-900">${Number(tour.price || 0).toFixed(2)}</span>
                   </div>
                   <h3 className="mt-4 text-xl font-bold text-slate-900">{tour.title}</h3>
                   <p className="mt-2 text-sm text-slate-500">{tour.duration || 'Flexible duration'}</p>

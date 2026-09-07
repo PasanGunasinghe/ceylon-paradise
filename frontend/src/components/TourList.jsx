@@ -51,7 +51,6 @@ export default function TourList({ tours = [], onBookNow, onCheckout }) {
                 <span className="bg-teal-100 text-brand text-xs font-semibold px-2 py-1 rounded-full">
                   {tour.category}
                 </span>
-                <span className="text-2xl font-bold text-slate-900">${Number(tour.price).toFixed(2)}</span>
               </div>
 
               <h3 className="text-xl font-bold text-slate-900 mb-2">{tour.title}</h3>

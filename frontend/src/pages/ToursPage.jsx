@@ -23,11 +23,10 @@ export default function ToursPage({ tours = [], onBookNow, onCheckout }) {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {liveTours.map((tour) => (
             <article key={tour.id} className="glass-card group overflow-hidden rounded-[2rem] border border-slate-700/60 bg-slate-800 shadow-xl shadow-slate-950/30 transition duration-300 hover:-translate-y-1 hover:shadow-emerald-950/30">
-              <div className="relative overflow-hidden"><img src={getTourImage(tour) || fallbackImage} alt={tour.title} className="h-64 w-full object-cover transition duration-700 group-hover:scale-105" onError={(e) => { e.currentTarget.src = fallbackImage; }} /><span className="absolute right-4 top-4 rounded-full bg-slate-950/75 px-3 py-1.5 text-xs font-bold text-amber-300 backdrop-blur">From ${Number(tour.price || 0).toFixed(0)}</span></div>
+              <div className="relative overflow-hidden"><img src={getTourImage(tour) || fallbackImage} alt={tour.title} className="h-64 w-full object-cover transition duration-700 group-hover:scale-105" onError={(e) => { e.currentTarget.src = fallbackImage; }} /></div>
               <div className="p-6">
                 <div className="flex items-center justify-between gap-3">
                   <span className="rounded-full border border-emerald-500/40 bg-emerald-500/20 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-300">{tour.category || 'Tour'}</span>
-                  <span className="text-2xl font-black text-emerald-400">${Number(tour.price || 0).toFixed(2)}</span>
                 </div>
                 <h2 className="mt-4 text-2xl font-bold text-white">{tour.title}</h2>
                 <p className="mt-2 text-sm text-slate-300">{tour.duration || 'Flexible duration'}</p>

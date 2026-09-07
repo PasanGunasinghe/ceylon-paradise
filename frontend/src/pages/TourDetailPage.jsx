@@ -34,10 +34,6 @@ export default function TourDetailPage({ tours = [], onBookNow }) {
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-700">{tour.category || 'Tour package'}</p>
             <h1 className="mt-4 text-4xl font-black text-slate-900">{tour.title}</h1>
             <p className="mt-3 text-slate-500">{tour.duration || 'Flexible duration'}</p>
-            <div className="mt-6 flex items-baseline gap-3">
-              <span className="text-4xl font-black text-slate-900">${Number(tour.price || 0).toFixed(2)}</span>
-              <span className="text-slate-500">per traveller</span>
-            </div>
             <p className="mt-6 text-slate-600">{tour.description || 'A beautifully curated route designed to offer unforgettable moments from arrival through departure.'}</p>
 
             <div className="mt-7 space-y-3 text-sm text-slate-600">

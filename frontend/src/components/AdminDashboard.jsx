@@ -120,10 +120,27 @@ export default function AdminDashboard() {
   const [destinationModalOpen, setDestinationModalOpen] = useState(false);
   const [mutationError, setMutationError] = useState('');
   const [mutationSuccess, setMutationSuccess] = useState('');
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
 
   const beginMutation = () => {
     setMutationError('');
     setMutationSuccess('');
+  };
+
+  const changeAdminPassword = async (event) => {
+    event.preventDefault();
+    beginMutation();
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setMutationError('New password and confirmation do not match.');
+      return;
+    }
+    try {
+      const result = await apiClient.changeAdminPassword({ currentPassword: passwordForm.currentPassword, newPassword: passwordForm.newPassword }, token);
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setMutationSuccess(result.message || 'Password changed successfully.');
+    } catch (error) {
+      setMutationError(error.message);
+    }
   };
 
   useEffect(() => {
@@ -610,6 +627,7 @@ export default function AdminDashboard() {
     ['pins', 'Map Pins'],
     ['reviews', 'Reviews Management'],
     ['users', 'Registered Users'],
+    ['settings', 'Settings'],
   ];
 
   return (
@@ -854,6 +872,28 @@ export default function AdminDashboard() {
 
           {activeTab === 'users' && (
             <div className="overflow-hidden rounded-3xl bg-white shadow-sm"><div className="border-b border-slate-200 p-4 sm:p-6"><h3 className="text-xl font-bold text-slate-900">Registered Users</h3><input value={userSearch} onChange={(event) => setUserSearch(event.target.value)} placeholder="Search name, email, or contact number" className="mt-4 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm outline-none focus:border-emerald-500" /></div><div className="overflow-x-auto"><table className="min-w-[720px] text-left text-sm"><thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500"><tr><th className="px-5 py-3">Name</th><th className="px-5 py-3">Email</th><th className="px-5 py-3">Contact Number</th><th className="px-5 py-3">Country</th><th className="px-5 py-3">Date Registered</th></tr></thead><tbody className="divide-y divide-slate-200">{filteredUsers.length === 0 ? <tr><td colSpan="5" className="px-5 py-8 text-center text-slate-500">No matching users available.</td></tr> : filteredUsers.map((registeredUser) => <tr key={registeredUser.id || registeredUser.email} className="text-slate-700"><td className="px-5 py-3 font-semibold text-slate-900">{registeredUser.name}</td><td className="px-5 py-3">{registeredUser.email}</td><td className="px-5 py-3">{registeredUser.phone || registeredUser.contact_number || 'N/A'}</td><td className="px-5 py-3">{registeredUser.country || 'Not provided'}</td><td className="px-5 py-3">{registeredUser.registeredAt ? new Date(registeredUser.registeredAt).toLocaleDateString() : registeredUser.created_at ? new Date(registeredUser.created_at).toLocaleDateString() : 'Available in account record'}</td></tr>)}</tbody></table></div></div>
+          )}
+
+          {activeTab === 'settings' && (
+            <div className="max-w-xl rounded-3xl bg-white p-6 shadow-sm">
+              <h3 className="text-xl font-bold text-slate-900">Change Password</h3>
+              <p className="mt-1 text-sm text-slate-500">Update the password for this administrator account.</p>
+              <form onSubmit={changeAdminPassword} className="mt-5 space-y-4">
+                <label className="block text-sm font-semibold text-slate-700">
+                  Current Password
+                  <input type="password" value={passwordForm.currentPassword} onChange={(event) => setPasswordForm((prev) => ({ ...prev, currentPassword: event.target.value }))} className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 font-normal" required />
+                </label>
+                <label className="block text-sm font-semibold text-slate-700">
+                  New Password
+                  <input type="password" minLength="8" value={passwordForm.newPassword} onChange={(event) => setPasswordForm((prev) => ({ ...prev, newPassword: event.target.value }))} className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 font-normal" required />
+                </label>
+                <label className="block text-sm font-semibold text-slate-700">
+                  Confirm New Password
+                  <input type="password" minLength="8" value={passwordForm.confirmPassword} onChange={(event) => setPasswordForm((prev) => ({ ...prev, confirmPassword: event.target.value }))} className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 font-normal" required />
+                </label>
+                <button type="submit" className="rounded-full bg-emerald-600 px-5 py-3 font-semibold text-white shadow-lg">Change password</button>
+              </form>
+            </div>
           )}
 
           {activeTab === 'inquiries' && (

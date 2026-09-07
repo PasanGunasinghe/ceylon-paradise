@@ -125,7 +125,6 @@ export default function BookingForm({ selectedTour, onClose }) {
           <div className="mb-5 rounded-2xl bg-slate-800 text-white p-4 border border-slate-700">
             <p className="text-sm text-slate-300">Selected Tour</p>
             <p className="text-lg font-bold text-white">{selectedTour.title}</p>
-            <p className="text-emerald-300 font-semibold">${Number(selectedTour.price).toFixed(2)}</p>
           </div>
         )}
 

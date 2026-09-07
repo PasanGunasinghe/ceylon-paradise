@@ -293,6 +293,39 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+app.put('/api/admin/change-password', authenticateToken, requireRole('admin'), async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ message: 'Current password and new password are required' });
+  }
+  if (String(newPassword).length < 8) {
+    return res.status(400).json({ message: 'New password must be at least 8 characters' });
+  }
+
+  try {
+    if (isDatabaseDown()) {
+      const user = state.users.find((item) => item.id === req.user.id);
+      if (!user || !(await bcrypt.compare(currentPassword, user.password))) {
+        return res.status(401).json({ message: 'Current password is incorrect' });
+      }
+      user.password = await bcrypt.hash(newPassword, 10);
+      return res.json({ message: 'Password changed successfully' });
+    }
+
+    const result = await pool.query('SELECT password FROM users WHERE id = $1', [req.user.id]);
+    const user = result.rows[0];
+    if (!user || !(await bcrypt.compare(currentPassword, user.password))) {
+      return res.status(401).json({ message: 'Current password is incorrect' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await pool.query('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, req.user.id]);
+    return res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to change password', error: error.message });
+  }
+});
+
 app.post('/api/auth/forgot-password', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ message: 'Email is required' });

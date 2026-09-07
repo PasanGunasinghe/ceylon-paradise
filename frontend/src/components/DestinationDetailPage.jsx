@@ -133,7 +133,6 @@ export default function DestinationDetailPage({ destinations = [], tours = [], o
                   <div className="p-6">
                     <div className="flex justify-between items-center mb-3">
                       <span className="bg-teal-100 text-brand text-xs font-semibold px-2 py-1 rounded-full">{tour.category}</span>
-                      <span className="text-xl font-bold text-slate-900">${Number(tour.price).toFixed(2)}</span>
                     </div>
                     <h3 className="text-xl font-bold text-slate-900">{tour.title}</h3>
                     <p className="text-sm text-slate-500 mt-2">{tour.duration}</p>
