@@ -63,7 +63,21 @@ function AdminLoginPage({ onAuthSuccess }) {
   );
 }
 
+function MaintenancePage() {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6 text-center text-white">
+      <div className="max-w-2xl">
+        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-400">Ceylon Paradise</p>
+        <h1 className="mt-6 text-5xl font-black tracking-tight sm:text-7xl">503 Service Unavailable</h1>
+        <p className="mt-6 text-xl text-slate-300">Scheduled Maintenance in Progress</p>
+      </div>
+    </main>
+  );
+}
+
 export default function App() {
+  return <MaintenancePage />;
+
   const [destinations, setDestinations] = useState(() => getInitialList('destinations'));
   const [selectedTour, setSelectedTour] = useState(null);
   const [authUser, setAuthUser] = useState(authStorage.getUser());
