@@ -21,7 +21,7 @@ export const heroCarouselImages = heroCarouselFiles
   }));
 
 export function useHeroCarousel() {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
@@ -29,12 +29,16 @@ export function useHeroCarousel() {
     const interval = window.setInterval(() => {
       setVisible(false);
       window.setTimeout(() => {
-        setActiveIndex((index) => (index + 1) % heroCarouselImages.length);
+        setCurrentIndex((index) => (index + 1) % heroCarouselImages.length);
         setVisible(true);
       }, 250);
     }, 4000);
     return () => window.clearInterval(interval);
   }, []);
 
-  return { image: heroCarouselImages[activeIndex], visible };
+  return {
+    currentIndex,
+    activeDestination: heroCarouselImages[currentIndex],
+    visible,
+  };
 }

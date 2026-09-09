@@ -3,7 +3,7 @@ import { useVideoPlaylist } from '../videoPlaylist';
 
 export default function Hero() {
   const { activeVideoSlot, handleTimeUpdate, setVideoRef, switchToNextVideo, videoSources } = useVideoPlaylist();
-  const { image: carouselImage, visible: carouselVisible } = useHeroCarousel();
+  const { activeDestination, visible: carouselVisible } = useHeroCarousel();
 
   return (
     <section className="relative overflow-hidden bg-slate-950 text-white">
@@ -46,12 +46,12 @@ export default function Hero() {
         </div>
 
         <div className="relative">
-          <div className="rounded-3xl overflow-hidden shadow-2xl ring-8 ring-white/10">
-            <img src={carouselImage.src} alt={`${carouselImage.title} landscape`} className={`w-full h-[500px] object-cover transition-opacity duration-300 ${carouselVisible ? 'opacity-100' : 'opacity-0'}`} />
+          <div key={activeDestination.fileName} className="rounded-3xl overflow-hidden shadow-2xl ring-8 ring-white/10">
+            <img src={activeDestination.src} alt={`${activeDestination.title} landscape`} className={`w-full h-[500px] object-cover transition-opacity duration-300 ${carouselVisible ? 'opacity-100' : 'opacity-0'}`} />
           </div>
-          <div className="absolute -bottom-6 left-6 bg-white text-slate-800 p-4 rounded-2xl shadow-xl">
+          <div key={`${activeDestination.fileName}-details`} className="absolute -bottom-6 left-6 bg-white text-slate-800 p-4 rounded-2xl shadow-xl">
             <p className="text-sm text-slate-500">Popular escape</p>
-            <p className="text-xl font-bold">{carouselImage.title}</p>
+            <p className="text-xl font-bold">{activeDestination.title}</p>
             <p className="text-brand font-semibold">From $220</p>
           </div>
         </div>

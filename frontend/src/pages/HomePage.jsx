@@ -26,7 +26,7 @@ export default function HomePage({ authUser, destinations = [], tours = [], onBo
   const destinationCards = syncedDestinations.filter((destination) => destination && destination.name).slice(0, 3);
   const tourCards = syncedTours.filter((tour) => tour && tour.title).slice(0, 3);
   const { t } = useTheme();
-  const { image: carouselImage, visible: carouselVisible } = useHeroCarousel();
+  const { activeDestination, visible: carouselVisible } = useHeroCarousel();
 
   useEffect(() => {
     const loadContent = async () => {
@@ -100,14 +100,14 @@ export default function HomePage({ authUser, destinations = [], tours = [], onBo
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-white/15 bg-white/10 p-4 shadow-2xl backdrop-blur-xl">
-              <img src={carouselImage.src} alt={`${carouselImage.title} landscape`} className={`h-[420px] w-full rounded-[1.5rem] object-cover transition-opacity duration-300 ${carouselVisible ? 'opacity-100' : 'opacity-0'}`} />
-              <div className="mt-4 grid gap-3 rounded-[1.5rem] bg-slate-900/60 p-4 text-sm text-slate-200">
+            <div key={activeDestination.fileName} className="rounded-[2rem] border border-white/15 bg-white/10 p-4 shadow-2xl backdrop-blur-xl">
+              <img src={activeDestination.src} alt={`${activeDestination.title} landscape`} className={`h-[420px] w-full rounded-[1.5rem] object-cover transition-opacity duration-300 ${carouselVisible ? 'opacity-100' : 'opacity-0'}`} />
+              <div key={`${activeDestination.fileName}-details`} className="mt-4 grid gap-3 rounded-[1.5rem] bg-slate-900/60 p-4 text-sm text-slate-200">
                 <div className="flex items-center justify-between">
                   <span className="text-slate-300">Most loved escape</span>
                   <span className="font-semibold text-amber-300">From $220</span>
                 </div>
-                <p className="text-xl font-bold text-white">{carouselImage.title}</p>
+                <p className="text-xl font-bold text-white">{activeDestination.title}</p>
                 <div className="flex flex-wrap gap-2">
                   {trustBadges.map((badge) => (
                     <span key={badge} className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-200">
