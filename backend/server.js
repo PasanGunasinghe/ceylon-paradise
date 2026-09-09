@@ -10,8 +10,13 @@ const { state, getNextId } = require('./src/fallbackStore');
 
 const app = express();
 const allowedOrigins = new Set([
+  'https://ceylonparadiseexpedition.com',
+  'https://www.ceylonparadiseexpedition.com',
   'https://ceylon-paradise-jizyk7hev-pasan-gunasinghe.vercel.app',
   'http://localhost:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:3000',
 ]);
 const corsOptions = {
   origin(origin, callback) {
