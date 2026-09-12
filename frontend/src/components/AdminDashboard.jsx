@@ -272,6 +272,7 @@ export default function AdminDashboard() {
 
   const saveTour = async (event) => {
     event.preventDefault();
+    console.log('--- ADD TOUR SUBMIT TRIGGERED ---', tourForm);
     beginMutation();
     const isEditing = Boolean(editingTourId);
     const price = Number(tourForm.price);
@@ -322,12 +323,14 @@ export default function AdminDashboard() {
       setEditingTourId(null);
       setMutationSuccess(isEditing ? 'Tour updated successfully.' : 'Tour created successfully.');
     } catch (error) {
-      console.error("400 Error Details:", error.response?.data);
-      setMutationError(error.message);
+      console.error('Submit Error:', error);
+      setMutationError(error.message || 'Unable to save tour package.');
+      setMutationSuccess('');
       return;
     }
 
     setTourForm(emptyTourForm);
+    setTourValidation({});
     setTourModalOpen(false);
   };
 
