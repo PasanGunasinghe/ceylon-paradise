@@ -94,7 +94,7 @@ export default function MapPinsEditor({ pinForm, setPinForm, mapPins = [], onSav
       onReset?.();
     }
     setHasReset(true);
-  }, [onReset]);
+  }, []);
 
   useEffect(() => {
     if (pinForm.lat && pinForm.lng) {

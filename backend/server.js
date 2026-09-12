@@ -35,10 +35,10 @@ app.use('/uploads', express.static('uploads'));
 const PORT = process.env.PORT || 5000;
 let databaseReady = false;
 
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use((req, res, next) => {
-  console.log("INCOMING PAYLOAD:", req.method, req.url, req.body);
+  console.log('INCOMING REQUEST:', req.method, req.url);
   next();
 });
 

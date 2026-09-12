@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import MapPlanner from '../components/MapPlanner';
 import { API_BASE_URL } from '../api';
@@ -11,12 +11,12 @@ export default function MapPlannerPage({ destinations = [] }) {
   const [selectedIds, setSelectedIds] = useState([]);
   const [submitMessage, setSubmitMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const routeDestinations = destinations.slice(0, 3);
-  const routeStops = (mapPins.length ? mapPins : routeDestinations).map((pin, index) => ({ ...pin, id: pin.id ?? `${pin.name || pin.title}-${index}` }));
+  const routeDestinations = useMemo(() => destinations.slice(0, 3), [destinations]);
+  const routeStops = useMemo(() => (mapPins.length ? mapPins : routeDestinations).map((pin, index) => ({ ...pin, id: pin.id ?? `${pin.name || pin.title}-${index}` })), [mapPins, routeDestinations]);
   const selectedStops = useMemo(() => routeStops.map((pin, index) => ({ id: pin.id, name: pin.name || pin.title, days: pin.dayNumber ? `Day ${pin.dayNumber}` : `Day ${index + 1}`, note: pin.description || pin.details || 'Pinned destination' })), [routeStops]);
   const selectedRoute = useMemo(() => selectedIds.map((id) => routeStops.find((pin) => pin.id === id)).filter(Boolean), [routeStops, selectedIds]);
 
-  const toggleStop = (id) => setSelectedIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+  const toggleStop = useCallback((id) => setSelectedIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]), []);
   const submitRoute = async () => {
     const token = localStorage.getItem('ceylon_paradise_token');
     if (!token) { window.location.href = '/login?next=/map-planner'; return; }
@@ -43,17 +43,6 @@ export default function MapPlannerPage({ destinations = [] }) {
     };
 
     loadPins();
-    const updatePins = (event) => {
-      if (!event.detail || event.detail.name === 'mapPins') {
-        loadPins();
-      }
-    };
-    window.addEventListener('app-data-updated', updatePins);
-    window.addEventListener('storage', updatePins);
-    return () => {
-      window.removeEventListener('app-data-updated', updatePins);
-      window.removeEventListener('storage', updatePins);
-    };
   }, []);
 
   return (

@@ -1,35 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import RouteMap from './RouteMap';
-import { api } from '../api';
-import { getInitialList } from '../dataStore';
 
 export default function MapPlanner({ destinations = [], orderedRoute = [], focusDestination = null }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchCenter, setSearchCenter] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
-  const [customPins, setCustomPins] = useState(() => getInitialList('mapPins'));
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const loadCustomPins = () => {
-      api.getMapPins().then((pins) => { setCustomPins(Array.isArray(pins) ? pins : []); setIsLoading(false); }).catch(() => { setCustomPins([]); setIsLoading(false); });
-    };
-
-    loadCustomPins();
-    const onAppDataUpdated = (event) => {
-      if (event.detail?.name === 'mapPins') loadCustomPins();
-    };
-    window.addEventListener('custom-map-pins-updated', loadCustomPins);
-    window.addEventListener('app-data-updated', onAppDataUpdated);
-    window.addEventListener('mapUpdated', loadCustomPins);
-    window.addEventListener('storage', loadCustomPins);
-    return () => {
-      window.removeEventListener('custom-map-pins-updated', loadCustomPins);
-      window.removeEventListener('app-data-updated', onAppDataUpdated);
-      window.removeEventListener('mapUpdated', loadCustomPins);
-      window.removeEventListener('storage', loadCustomPins);
-    };
-  }, []);
 
   const mapDestinations = useMemo(() => {
     const validDestinations = destinations.filter((destination) => {
@@ -46,7 +21,7 @@ export default function MapPlanner({ destinations = [], orderedRoute = [], focus
       return !existingKeys.has(key);
     });
     return [...validDestinations, ...newPins];
-  }, [customPins, destinations]);
+  }, [destinations]);
 
   const handleSearch = async (event) => {
     event.preventDefault();
@@ -84,8 +59,7 @@ export default function MapPlanner({ destinations = [], orderedRoute = [], focus
         </button>
       </form>
 
-      {isLoading && <p className="rounded-2xl border border-slate-700 bg-slate-800 p-4 text-sm text-slate-300">Loading saved map pins...</p>}
-      {!isLoading && mapDestinations.length === 0 && <p className="rounded-2xl border border-slate-700 bg-slate-800 p-4 text-sm text-slate-300">No saved map pins yet. Search for a destination to explore the map.</p>}
+      {mapDestinations.length === 0 && <p className="rounded-2xl border border-slate-700 bg-slate-800 p-4 text-sm text-slate-300">No saved map pins yet. Search for a destination to explore the map.</p>}
       <RouteMap destinations={mapDestinations} routeDestinations={orderedRoute} searchCenter={searchCenter} focusDestination={focusDestination} />
     </div>
   );

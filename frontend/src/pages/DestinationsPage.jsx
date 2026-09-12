@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { api, getImageSource } from '../api';
+import { getImageSource } from '../api';
 
 const fallbackImage = 'https://images.unsplash.com/photo-1586861635167-e5223aadc9fe?auto=format&fit=crop&w=1200&q=80';
 
 export default function DestinationsPage({ destinations = [] }) {
   const [liveDestinations, setLiveDestinations] = useState(destinations);
   useEffect(() => {
-    api.getDestinations().then((data) => setLiveDestinations(Array.isArray(data) ? data.filter((destination) => destination && destination.name) : [])).catch(() => setLiveDestinations(destinations.filter((destination) => destination && destination.name)));
+    setLiveDestinations(destinations.filter((destination) => destination && destination.name));
   }, [destinations]);
   return (
     <div className="page-shell page-background-full pb-20" style={{ backgroundImage: "url('/images/sigiriya.jpg')" }}>

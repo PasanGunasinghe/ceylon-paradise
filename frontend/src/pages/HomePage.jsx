@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTheme } from '../theme.jsx';
 import { useHeroCarousel } from '../heroCarousel';
 import { useVideoPlaylist } from '../videoPlaylist';
-import { api, getTourImage, normalizeTours } from '../api';
+import { getTourImage, normalizeTours } from '../api';
 
 const heroImage = 'https://images.unsplash.com/photo-1586861635167-e5223aadc9fe?auto=format&fit=crop&w=2000&q=80';
 
@@ -29,25 +29,9 @@ export default function HomePage({ authUser, destinations = [], tours = [], onBo
   const { activeDestination, visible: carouselVisible } = useHeroCarousel();
 
   useEffect(() => {
-    const loadContent = async () => {
-      try {
-        const [tourData, destinationData] = await Promise.all([api.getTours(), api.getDestinations()]);
-        setSyncedTours(normalizeTours(tourData));
-        setSyncedDestinations(Array.isArray(destinationData) ? destinationData : []);
-      } catch {
-        setSyncedTours([]);
-        setSyncedDestinations([]);
-      }
-    };
-
-    loadContent();
-    window.addEventListener('storage', loadContent);
-    window.addEventListener('toursUpdated', loadContent);
-    return () => {
-      window.removeEventListener('storage', loadContent);
-      window.removeEventListener('toursUpdated', loadContent);
-    };
-  }, []);
+    setSyncedTours(normalizeTours(tours));
+    setSyncedDestinations(Array.isArray(destinations) ? destinations : []);
+  }, [destinations, tours]);
 
   return (
     <div className="page-shell">

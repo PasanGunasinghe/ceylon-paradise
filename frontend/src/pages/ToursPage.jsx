@@ -1,14 +1,10 @@
 import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { api, normalizeTours, getTourImage } from '../api';
+import { getTourImage } from '../api';
 
 const fallbackImage = 'https://images.unsplash.com/photo-1546708973-b339540b5162?auto=format&fit=crop&w=1200&q=80';
 
 export default function ToursPage({ tours = [], onBookNow, onCheckout }) {
-  const [liveTours, setLiveTours] = useState(normalizeTours(tours));
-  useEffect(() => {
-    api.getTours().then((data) => setLiveTours(normalizeTours(Array.isArray(data) ? data.filter((tour) => tour && tour.title) : []))).catch(() => setLiveTours(normalizeTours(tours).filter((tour) => tour && tour.title)));
-  }, [tours]);
+  const liveTours = tours.filter((tour) => tour && tour.title);
   return (
     <div className="page-shell pb-20">
       <section className="page-hero page-hero-tours small">

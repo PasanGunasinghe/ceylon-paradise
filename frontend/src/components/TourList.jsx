@@ -1,34 +1,8 @@
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api, getTourImage } from '../api';
+import { getTourImage } from '../api';
 
 export default function TourList({ tours = [], onBookNow, onCheckout }) {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    const loadTours = async () => {
-      try {
-        await api.getTours();
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadTours();
-  }, []);
-
-  if (loading && !tours.length) {
-    return <div className="text-center py-10 text-slate-600">Loading tours...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center py-10 text-red-600">Error: {error}</div>;
-  }
-
   return (
     <section className="max-w-7xl mx-auto px-4 py-16" id="tours">
       <div className="flex items-end justify-between mb-8">

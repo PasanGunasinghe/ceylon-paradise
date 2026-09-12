@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { MapContainer, Marker, Polyline, Popup, TileLayer, useMap } from 'react-leaflet';
 import { Landmark, PawPrint, Waves } from 'lucide-react';
 import L from 'leaflet';
@@ -83,10 +83,10 @@ function MapRoute({ destinations = [], routeDestinations = [], searchCenter = nu
     markerRefs.current.get(markerKey)?.openPopup();
   }, [destinations, focusDestination, map]);
 
-  const routePoints = routeDestinations.length > 1 ? routeDestinations : [];
-  const routeCoordinates = routePoints.map((destination, index) => coordinatesFor(destination, index));
-  const smoothRoute = curvedRoute(routeCoordinates);
-  const mapCenter = searchCenter || (routeCoordinates.length ? routeCoordinates[Math.floor(routeCoordinates.length / 2)] : [7.2, 80.7]);
+  const routePoints = useMemo(() => (routeDestinations.length > 1 ? routeDestinations : []), [routeDestinations]);
+  const routeCoordinates = useMemo(() => routePoints.map((destination, index) => coordinatesFor(destination, index)), [routePoints]);
+  const smoothRoute = useMemo(() => curvedRoute(routeCoordinates), [routeCoordinates]);
+  const mapCenter = useMemo(() => searchCenter || (routeCoordinates.length ? routeCoordinates[Math.floor(routeCoordinates.length / 2)] : [7.2, 80.7]), [routeCoordinates, searchCenter]);
 
   useEffect(() => {
     if (!searchCenter && routeCoordinates.length) {
@@ -130,9 +130,9 @@ function MapRoute({ destinations = [], routeDestinations = [], searchCenter = nu
 }
 
 export default function RouteMap({ destinations = [], routeDestinations = [], searchCenter = null, focusDestination = null }) {
-  const routePoints = routeDestinations.length ? routeDestinations : destinations.slice(0, 5);
-  const routeCoordinates = routePoints.map((destination, index) => coordinatesFor(destination, index));
-  const mapCenter = searchCenter || (routeCoordinates.length ? routeCoordinates[Math.floor(routeCoordinates.length / 2)] : [7.2, 80.7]);
+  const routePoints = useMemo(() => (routeDestinations.length ? routeDestinations : destinations.slice(0, 5)), [destinations, routeDestinations]);
+  const routeCoordinates = useMemo(() => routePoints.map((destination, index) => coordinatesFor(destination, index)), [routePoints]);
+  const mapCenter = useMemo(() => searchCenter || (routeCoordinates.length ? routeCoordinates[Math.floor(routeCoordinates.length / 2)] : [7.2, 80.7]), [routeCoordinates, searchCenter]);
 
   return (
     <div className="rounded-[2rem] overflow-hidden border border-slate-700/60 shadow-xl bg-slate-800">
