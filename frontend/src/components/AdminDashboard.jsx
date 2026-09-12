@@ -118,6 +118,7 @@ export default function AdminDashboard() {
   const [editingGalleryId, setEditingGalleryId] = useState(null);
   const [editingPinId, setEditingPinId] = useState(null);
   const [tourModalOpen, setTourModalOpen] = useState(false);
+  const [tourValidation, setTourValidation] = useState({});
   const [destinationModalOpen, setDestinationModalOpen] = useState(false);
   const [mutationError, setMutationError] = useState('');
   const [mutationSuccess, setMutationSuccess] = useState('');
@@ -249,6 +250,7 @@ export default function AdminDashboard() {
   const handleTourChange = (event) => {
     const { name, value } = event.target;
     setTourForm((prev) => ({ ...prev, [name]: value }));
+    setTourValidation((prev) => ({ ...prev, [name]: false }));
   };
 
   const handleDestinationChange = (event) => {
@@ -275,11 +277,18 @@ export default function AdminDashboard() {
     const price = Number(tourForm.price);
     const title = tourForm.title.trim();
     const description = tourForm.description.trim();
-    const imageValue = tourForm.image_file || tourForm.image_url;
-    if (!title || !description || !Number.isFinite(price) || !tourForm.duration || !tourForm.category || !imageValue) {
+    const missingFields = {
+      title: !title,
+      price: !tourForm.price.trim() || !Number.isFinite(price),
+      duration: !tourForm.duration,
+      category: !tourForm.category,
+    };
+    if (Object.values(missingFields).some(Boolean)) {
+      setTourValidation(missingFields);
       window.alert('Please fill all required fields correctly!');
       return;
     }
+    setTourValidation({});
     const payload = new FormData();
     payload.append('title', title);
     payload.append('price', String(price));
@@ -289,9 +298,12 @@ export default function AdminDashboard() {
     payload.append('location', tourForm.destination || '');
     payload.append('highlights', JSON.stringify(asArray(tourForm.itinerary)));
     payload.append('availability', tourForm.availability || 'Available');
-    payload.append('image_url', tourForm.image_url || '');
-    payload.append('images', JSON.stringify(asArray(tourForm.image_url)));
-    if (tourForm.image_file) payload.append('image', tourForm.image_file);
+    if (tourForm.image_file) {
+      payload.append('image', tourForm.image_file);
+    } else {
+      payload.append('image_url', tourForm.image_url || '');
+      payload.append('images', JSON.stringify(asArray(tourForm.image_url)));
+    }
     try {
       const savedTour = editingTourId
         ? await apiClient.updateTour(editingTourId, payload, token)
@@ -301,6 +313,7 @@ export default function AdminDashboard() {
         : [savedTour, ...tours];
       setTours(updated);
       writeList('tours', updated);
+      await loadData();
       setEditingTourId(null);
       setMutationSuccess(isEditing ? 'Tour updated successfully.' : 'Tour created successfully.');
     } catch (error) {
@@ -329,6 +342,7 @@ export default function AdminDashboard() {
     });
     setActiveTab('packages');
     setTourModalOpen(true);
+    setTourValidation({});
   };
 
   const deleteTour = async (id) => {
@@ -796,14 +810,14 @@ export default function AdminDashboard() {
                 <button type="button" onClick={() => setTourModalOpen(false)} aria-label="Close tour dialog" className="absolute right-5 top-5 text-xl text-slate-500">✕</button>
                 <h3 className="text-xl font-bold mb-4">{editingTourId ? 'Update Tour Package' : 'Create Tour Package'}</h3>
                 <form onSubmit={saveTour} className="space-y-3">
-                  <input name="title" value={tourForm.title} onChange={handleTourChange} placeholder="Tour title" className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3" required />
-                  <input name="price" value={tourForm.price} onChange={handleTourChange} placeholder="Price" className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3" required />
-                  <select name="duration" value={tourForm.duration} onChange={handleTourChange} className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3" required><option value="">Select duration</option>{durationOptions.map((option) => <option key={option} value={option}>{option}</option>)}</select>
-                  <select name="category" value={tourForm.category} onChange={handleTourChange} className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3" required><option value="">Select category</option>{categoryOptions.map((option) => <option key={option} value={option}>{option}</option>)}</select>
+                  <input name="title" value={tourForm.title} onChange={handleTourChange} placeholder="Tour title" className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3" style={tourValidation.title ? { border: '2px solid red' } : undefined} />
+                  <input name="price" value={tourForm.price} onChange={handleTourChange} placeholder="Price" className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3" style={tourValidation.price ? { border: '2px solid red' } : undefined} />
+                  <select name="duration" value={tourForm.duration} onChange={handleTourChange} className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3" style={tourValidation.duration ? { border: '2px solid red' } : undefined}><option value="">Select duration</option>{durationOptions.map((option) => <option key={option} value={option}>{option}</option>)}</select>
+                  <select name="category" value={tourForm.category} onChange={handleTourChange} className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3" style={tourValidation.category ? { border: '2px solid red' } : undefined}><option value="">Select category</option>{categoryOptions.map((option) => <option key={option} value={option}>{option}</option>)}</select>
                   <input name="destination" value={tourForm.destination} onChange={handleTourChange} placeholder="Destination" className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3" />
                   <input name="itinerary" value={tourForm.itinerary} onChange={handleTourChange} placeholder="Itinerary" className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3" />
                   <input name="availability" value={tourForm.availability} onChange={handleTourChange} placeholder="Availability" className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3" />
-                  <textarea name="description" value={tourForm.description} onChange={handleTourChange} rows="4" placeholder="Description" className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3" required />
+                  <textarea name="description" value={tourForm.description} onChange={handleTourChange} rows="4" placeholder="Description (optional)" className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3" />
                   <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3">
                     <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Image upload</label>
                     <input name="image_url" value="" type="file" accept="image/*" onChange={(event) => handleFileUpload(event, setTourForm, 'image_url')} className="block w-full text-sm text-slate-600" />
