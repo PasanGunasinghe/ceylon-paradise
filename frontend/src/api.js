@@ -1,3 +1,5 @@
+import { fetchWithAuth } from './auth';
+
 const configuredApiUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, '');
 export const API_BASE_URL = configuredApiUrl || (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
 const listCache = new Map();
@@ -43,7 +45,7 @@ const cachedList = async (path) => {
   const cached = listCache.get(path);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) return cached.data;
   if (!pendingLists.has(path)) {
-    pendingLists.set(path, fetch(`${API_BASE_URL}${path}`)
+    pendingLists.set(path, fetchWithAuth(`${API_BASE_URL}${path}`)
       .then((response) => {
         if (!response.ok) throw new Error(`Failed to fetch ${path}`);
         return response.json();
@@ -63,20 +65,20 @@ export const api = {
   getDestinations: () => cachedList('/destinations'),
 
   getCategories: async () => {
-    const response = await fetch(`${API_BASE_URL}/categories`);
+    const response = await fetchWithAuth(`${API_BASE_URL}/categories`);
     if (!response.ok) throw new Error('Failed to fetch categories');
     return response.json();
   },
 
   getMemories: async () => {
-    const response = await fetch(`${API_BASE_URL}/memories`);
+    const response = await fetchWithAuth(`${API_BASE_URL}/memories`);
     if (!response.ok) throw new Error('Failed to fetch memories');
     return response.json();
   },
 
   getMapPins: () => cachedList('/mappins'),
   getAdminInquiries: async (token) => {
-    const response = await fetch(`${API_BASE_URL}/admin/inquiries`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/admin/inquiries`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -86,7 +88,7 @@ export const api = {
   },
 
   createMapPin: async (payload, token) => {
-    const response = await fetch(`${API_BASE_URL}/mappins`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/mappins`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -101,7 +103,7 @@ export const api = {
   },
 
   updateInquiryStatus: async (id, status, token) => {
-    const response = await fetch(`${API_BASE_URL}/admin/inquiries/${id}/status`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/admin/inquiries/${id}/status`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -116,7 +118,7 @@ export const api = {
   },
 
   saveInquiryNotes: async (id, notes, token) => {
-    const response = await fetch(`${API_BASE_URL}/admin/inquiries/${id}/notes`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/admin/inquiries/${id}/notes`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -131,7 +133,7 @@ export const api = {
   },
 
   submitBooking: async (payload) => {
-    const response = await fetch(`${API_BASE_URL}/bookings`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/bookings`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

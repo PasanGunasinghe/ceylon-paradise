@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../api';
+import { fetchWithAuth } from '../auth';
 import { authStorage } from '../auth';
 
 export default function AuthPage({ onAuthSuccess, variant = 'user', allowRegister = true, mode: initialMode = 'login', title = 'Welcome back', subtitle = 'Sign in to continue your Ceylon journey.' }) {
@@ -56,7 +57,7 @@ export default function AuthPage({ onAuthSuccess, variant = 'user', allowRegiste
         ? { email: form.email, password: form.password }
         : { name: form.name, email: form.email, password: form.password, phone: form.phone, country: form.country, role: 'user' };
 
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      const response = await fetchWithAuth(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

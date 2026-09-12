@@ -141,7 +141,7 @@ export default function RouteMap({ destinations = [], routeDestinations = [], se
         <h3 className="mt-2 text-2xl font-bold text-white">Ceylon highlights in one journey</h3>
       </div>
 
-      <div className="h-[420px] w-full">
+      <div className="h-[420px] w-full" style={{ width: '100%', height: '600px' }}>
         <MapContainer center={mapCenter} zoom={7} scrollWheelZoom={false} className="h-full w-full">
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

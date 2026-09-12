@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAuthHeaders, authStorage } from '../auth';
+import { getAuthHeaders, authStorage, fetchWithAuth } from '../auth';
 import { API_BASE_URL } from '../api';
 import { apiClient } from '../services/api';
 import MapPinsEditor from './MapPinsEditor';
@@ -171,14 +171,14 @@ export default function AdminDashboard() {
 
     try {
       const [tourRes, bookingRes, userRes, inquiryRes, pinRes, destinationRes, memoryRes, reviewRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/tours`, { headers }),
-        fetch(`${API_BASE_URL}/bookings`, { headers }),
-        fetch(`${API_BASE_URL}/admin/users`, { headers }),
-        fetch(`${API_BASE_URL}/admin/inquiries`, { headers }),
-        fetch(`${API_BASE_URL}/mappins`, { headers }),
-        fetch(`${API_BASE_URL}/destinations`, { headers }),
-        fetch(`${API_BASE_URL}/memories`, { headers }),
-        fetch(`${API_BASE_URL}/reviews`, { headers }),
+        fetchWithAuth(`${API_BASE_URL}/tours`, { headers }),
+        fetchWithAuth(`${API_BASE_URL}/bookings`, { headers }),
+        fetchWithAuth(`${API_BASE_URL}/admin/users`, { headers }),
+        fetchWithAuth(`${API_BASE_URL}/admin/inquiries`, { headers }),
+        fetchWithAuth(`${API_BASE_URL}/mappins`, { headers }),
+        fetchWithAuth(`${API_BASE_URL}/destinations`, { headers }),
+        fetchWithAuth(`${API_BASE_URL}/memories`, { headers }),
+        fetchWithAuth(`${API_BASE_URL}/reviews`, { headers }),
       ]);
 
       const toursData = tourRes.ok ? await tourRes.json() : [];

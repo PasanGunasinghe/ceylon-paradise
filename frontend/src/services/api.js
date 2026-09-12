@@ -1,3 +1,5 @@
+import { fetchWithAuth } from '../auth';
+
 const configuredApiUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, '');
 const API_BASE_URL = configuredApiUrl || (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
 
@@ -7,7 +9,7 @@ async function request(path, options = {}) {
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(options.headers || {}),
   };
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetchWithAuth(`${API_BASE_URL}${path}`, {
     ...options,
     headers,
   });

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../api';
+import { fetchWithAuth } from '../auth';
 
 export default function CheckoutPanel({ tour, onClose }) {
   const navigate = useNavigate();
@@ -56,7 +57,7 @@ export default function CheckoutPanel({ tour, onClose }) {
         total_amount: total,
       };
 
-      const response = await fetch(`${API_BASE_URL}/bookings`, {
+      const response = await fetchWithAuth(`${API_BASE_URL}/bookings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

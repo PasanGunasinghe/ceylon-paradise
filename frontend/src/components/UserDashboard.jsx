@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Header from './Header';
 import { API_BASE_URL } from '../api';
-import { authStorage, getAuthHeaders } from '../auth';
+import { authStorage, getAuthHeaders, fetchWithAuth } from '../auth';
 
 const currency = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(value || 0));
 
@@ -26,9 +26,9 @@ export default function UserDashboard() {
 
     try {
       const [meRes, bookingsRes, notificationsRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/users/me`, { headers: getAuthHeaders() }),
-        fetch(`${API_BASE_URL}/bookings/my`, { headers: getAuthHeaders() }),
-        fetch(`${API_BASE_URL}/notifications/user/${authStorage.getUser()?.id}`, { headers: getAuthHeaders() }),
+        fetchWithAuth(`${API_BASE_URL}/users/me`, { headers: getAuthHeaders() }),
+        fetchWithAuth(`${API_BASE_URL}/bookings/my`, { headers: getAuthHeaders() }),
+        fetchWithAuth(`${API_BASE_URL}/notifications/user/${authStorage.getUser()?.id}`, { headers: getAuthHeaders() }),
       ]);
 
       if (meRes.ok) setUser(await meRes.json());
@@ -47,7 +47,7 @@ export default function UserDashboard() {
 
   const cancelBooking = async (bookingId) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/bookings/${bookingId}/cancel`, {
+      const response = await fetchWithAuth(`${API_BASE_URL}/bookings/${bookingId}/cancel`, {
         method: 'PATCH',
         headers: getAuthHeaders(),
       });

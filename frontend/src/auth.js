@@ -19,3 +19,18 @@ export function getAuthHeaders() {
   const token = authStorage.getToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
+
+export async function fetchWithAuth(url, options = {}) {
+  const response = await fetch(url, options);
+
+  if (response.status === 403) {
+    const body = await response.clone().json().catch(() => null);
+    if (body?.message === 'Invalid or expired token') {
+      authStorage.clearToken();
+      authStorage.clearUser();
+      if (window.location.pathname !== '/login') window.location.assign('/login');
+    }
+  }
+
+  return response;
+}

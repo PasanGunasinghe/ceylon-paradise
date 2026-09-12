@@ -4,6 +4,7 @@ import MapPlanner from '../components/MapPlanner';
 import { API_BASE_URL } from '../api';
 import { writeList } from '../dataStore';
 import { apiClient } from '../services/api';
+import { fetchWithAuth } from '../auth';
 
 export default function MapPlannerPage({ destinations = [] }) {
   const [mapPins, setMapPins] = useState([]);
@@ -31,7 +32,7 @@ export default function MapPlannerPage({ destinations = [] }) {
   useEffect(() => {
     const loadPins = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/mappins`);
+        const response = await fetchWithAuth(`${API_BASE_URL}/mappins`);
         if (!response.ok) return;
         const data = await response.json();
         const validPins = Array.isArray(data) ? data.filter((pin) => Number(pin.latitude ?? pin.lat) !== 0 && Number(pin.longitude ?? pin.lng) !== 0) : [];

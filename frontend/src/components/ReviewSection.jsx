@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../api';
+import { fetchWithAuth } from '../auth';
 
 export default function ReviewSection({ tourId }) {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ export default function ReviewSection({ tourId }) {
 
   const loadReviews = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/reviews`);
+      const response = await fetchWithAuth(`${API_BASE_URL}/reviews`);
       if (!response.ok) throw new Error('Failed to fetch reviews');
       const data = await response.json();
       setReviews(Array.isArray(data) ? data.filter((item) => item && item.tour_id === Number(tourId)) : []);
@@ -39,7 +40,7 @@ export default function ReviewSection({ tourId }) {
       return;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/reviews`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ tour_id: tourId, rating, review, photos }) });
+      const response = await fetchWithAuth(`${API_BASE_URL}/reviews`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ tour_id: tourId, rating, review, photos }) });
       if (!response.ok) throw new Error('Failed to submit review');
       await loadReviews();
     } catch (error) {
