@@ -278,14 +278,18 @@ export default function AdminDashboard() {
     const title = tourForm.title.trim();
     const description = tourForm.description.trim();
     const missingFields = {
-      title: !title,
+      title: title.length < 2 || title.length > 200,
       price: !tourForm.price.trim() || !Number.isFinite(price),
       duration: !tourForm.duration,
       category: !tourForm.category,
     };
     if (Object.values(missingFields).some(Boolean)) {
       setTourValidation(missingFields);
-      window.alert('Please fill all required fields correctly!');
+      setMutationError(
+        missingFields.title
+          ? 'Tour title must contain between 2 and 200 characters.'
+          : 'Please complete the highlighted required fields.'
+      );
       return;
     }
     setTourValidation({});
@@ -810,7 +814,8 @@ export default function AdminDashboard() {
                 <button type="button" onClick={() => setTourModalOpen(false)} aria-label="Close tour dialog" className="absolute right-5 top-5 text-xl text-slate-500">✕</button>
                 <h3 className="text-xl font-bold mb-4">{editingTourId ? 'Update Tour Package' : 'Create Tour Package'}</h3>
                 <form onSubmit={saveTour} className="space-y-3">
-                  <input name="title" value={tourForm.title} onChange={handleTourChange} placeholder="Tour title" className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3" style={tourValidation.title ? { border: '2px solid red' } : undefined} />
+                  <input name="title" value={tourForm.title} onChange={handleTourChange} placeholder="Tour title" maxLength={200} className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3" style={tourValidation.title ? { border: '2px solid red' } : undefined} aria-invalid={tourValidation.title || undefined} />
+                  {tourValidation.title && <p className="text-sm text-red-600">Enter a tour title between 2 and 200 characters.</p>}
                   <input name="price" value={tourForm.price} onChange={handleTourChange} placeholder="Price" className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3" style={tourValidation.price ? { border: '2px solid red' } : undefined} />
                   <select name="duration" value={tourForm.duration} onChange={handleTourChange} className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3" style={tourValidation.duration ? { border: '2px solid red' } : undefined}><option value="">Select duration</option>{durationOptions.map((option) => <option key={option} value={option}>{option}</option>)}</select>
                   <select name="category" value={tourForm.category} onChange={handleTourChange} className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3" style={tourValidation.category ? { border: '2px solid red' } : undefined}><option value="">Select category</option>{categoryOptions.map((option) => <option key={option} value={option}>{option}</option>)}</select>

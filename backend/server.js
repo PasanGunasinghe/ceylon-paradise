@@ -749,7 +749,9 @@ app.post('/api/tours', authenticateToken, requireRole('admin'), upload.single('i
   const storedTourImages = await compressImageValue(tourImages);
   const parsedPayload = { title: tourTitle, price: tourPrice, duration: tourDuration, description: tourDescription, category: tourCategory, location: tourLocation, images: tourImages, highlights: tourHighlights };
   console.log("EXACT SQL INPUT [Tour POST]:", parsedPayload);
-  if (!tourTitle) return res.status(400).json({ error: 'Invalid title' });
+  if (tourTitle.length < 2 || tourTitle.length > 200) {
+    return res.status(400).json({ error: 'Title must be between 2 and 200 characters' });
+  }
   if (!Number.isFinite(tourPrice)) return res.status(400).json({ error: 'Invalid price number' });
   if (!tourDuration) return res.status(400).json({ error: 'Invalid duration' });
   if (!tourCategory) return res.status(400).json({ error: 'Invalid category' });
@@ -811,7 +813,9 @@ app.put('/api/tours/:id', authenticateToken, requireRole('admin'), upload.single
   const storedTourImages = await compressImageValue(tourImages);
   const parsedPayload = { title: tourTitle, price: tourPrice, duration: tourDuration, description: tourDescription, category: tourCategory, location: tourLocation, images: tourImages, highlights: tourHighlights };
   console.log("EXACT SQL INPUT [Tour PUT]:", parsedPayload);
-  if (!tourTitle) return res.status(400).json({ error: 'Invalid title' });
+  if (tourTitle.length < 2 || tourTitle.length > 200) {
+    return res.status(400).json({ error: 'Title must be between 2 and 200 characters' });
+  }
   if (!Number.isFinite(tourPrice)) return res.status(400).json({ error: 'Invalid price number' });
   if (!tourDuration) return res.status(400).json({ error: 'Invalid duration' });
   if (!tourCategory) return res.status(400).json({ error: 'Invalid category' });
