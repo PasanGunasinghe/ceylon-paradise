@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import { getTourImage } from '../api';
+import { getTourImage, normalizeTours } from '../api';
 
 export default function TourList({ tours = [], onBookNow, onCheckout }) {
   const navigate = useNavigate();
+  const displayTours = normalizeTours(tours);
   return (
     <section className="max-w-7xl mx-auto px-4 py-16" id="tours">
       <div className="flex items-end justify-between mb-8">
@@ -13,7 +14,7 @@ export default function TourList({ tours = [], onBookNow, onCheckout }) {
       </div>
 
       <div className="grid md:grid-cols-3 gap-8">
-        {tours.map((tour) => (
+        {displayTours.map((tour) => (
           <article key={tour.id} className="bg-white rounded-3xl overflow-hidden shadow-lg border border-slate-100">
             <img
               src={getTourImage(tour) || 'https://images.unsplash.com/photo-1546708973-b339540b5162?auto=format&fit=crop&w=1200&q=80'}

@@ -60,7 +60,14 @@ const cachedList = async (path) => {
 };
 
 export const api = {
-  getTours: () => cachedList('/tours'),
+  getTours: async () => {
+    const response = await fetchWithAuth(`${API_BASE_URL}/tours?_=${Date.now()}`, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' },
+    });
+    if (!response.ok) throw new Error('Failed to fetch tours');
+    return response.json();
+  },
 
   getDestinations: () => cachedList('/destinations'),
 

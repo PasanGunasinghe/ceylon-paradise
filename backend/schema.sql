@@ -46,7 +46,8 @@ CREATE TABLE dbo.TourPackages (
     category NVARCHAR(100) NOT NULL,
     location NVARCHAR(150) NULL,
     images_json NVARCHAR(MAX) NULL,
-    highlights NVARCHAR(MAX) NULL
+    highlights NVARCHAR(MAX) NULL,
+    created_at DATETIME2 NOT NULL CONSTRAINT DF_TourPackages_Created DEFAULT SYSUTCDATETIME()
 );
 GO
 

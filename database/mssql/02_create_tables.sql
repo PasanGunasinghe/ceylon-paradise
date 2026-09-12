@@ -35,7 +35,8 @@ CREATE TABLE dbo.TourPackages (
     price DECIMAL(10,2) NOT NULL,
     duration NVARCHAR(50) NOT NULL,
     description NVARCHAR(MAX),
-    category NVARCHAR(100) NOT NULL
+    category NVARCHAR(100) NOT NULL,
+    created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
 );
 GO
 

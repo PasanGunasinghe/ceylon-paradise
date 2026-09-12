@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAuthHeaders, authStorage, fetchWithAuth } from '../auth';
-import { API_BASE_URL } from '../api';
+import { API_BASE_URL, api } from '../api';
 import { apiClient } from '../services/api';
 import MapPinsEditor from './MapPinsEditor';
 import { getInitialList, hasList, writeList } from '../dataStore';
@@ -310,15 +310,14 @@ export default function AdminDashboard() {
     };
     console.log('Tour JSON payload:', payload);
     try {
-      const savedTour = editingTourId
-        ? await apiClient.updateTour(editingTourId, payload, token)
-        : await apiClient.createTour(payload, token);
-      const updated = editingTourId
-        ? tours.map((tour) => (tour.id === editingTourId ? savedTour : tour))
-        : [savedTour, ...tours];
-      setTours(updated);
-      writeList('tours', updated);
-      await loadData();
+      if (editingTourId) {
+        await apiClient.updateTour(editingTourId, payload, token);
+      } else {
+        await apiClient.createTour(payload, token);
+      }
+      const refreshedTours = await api.getTours();
+      setTours(refreshedTours);
+      writeList('tours', refreshedTours);
       setEditingTourId(null);
       setMutationSuccess(isEditing ? 'Tour updated successfully.' : 'Tour created successfully.');
     } catch (error) {

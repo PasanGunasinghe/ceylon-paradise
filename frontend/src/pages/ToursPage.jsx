@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
-import { getTourImage } from '../api';
+import { getTourImage, normalizeTours } from '../api';
 
 const fallbackImage = 'https://images.unsplash.com/photo-1546708973-b339540b5162?auto=format&fit=crop&w=1200&q=80';
 
 export default function ToursPage({ tours = [], onBookNow, onCheckout }) {
-  const liveTours = tours.filter((tour) => tour && tour.title);
+  const liveTours = normalizeTours(tours).filter((tour) => tour && tour.title);
   return (
     <div className="page-shell pb-20">
       <section className="page-hero page-hero-tours small">
