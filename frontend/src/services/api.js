@@ -51,12 +51,8 @@ async function request(path, options = {}) {
     const response = await axiosClient.request({
       url: path,
       method: options.method || 'GET',
-      headers: {
-        ...(options.headers || {}),
-        ...(isFormData ? { 'Content-Type': undefined } : {}),
-      },
+      headers: options.headers,
       data: body,
-      transformRequest: isFormData ? [(data) => data] : undefined,
     });
     return response.data;
   } catch (error) {

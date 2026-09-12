@@ -752,7 +752,7 @@ app.post('/api/tours', authenticateToken, requireRole('admin'), upload.single('i
   const parsedPayload = { title: tourTitle, price: tourPrice, duration: tourDuration, description: tourDescription, category: tourCategory, location: tourLocation, images: tourImages, highlights: tourHighlights };
   console.log("EXACT SQL INPUT [Tour POST]:", parsedPayload);
   if (tourTitle.length < 2 || tourTitle.length > 200) {
-    return res.status(400).json({ error: 'Title must be between 2 and 200 characters' });
+    return res.status(400).json({ error: 'Title must be between 2 and 200 characters', receivedTitle: rawTitle, bodyKeys: Object.keys(req.body) });
   }
   if (!Number.isFinite(tourPrice)) return res.status(400).json({ error: 'Invalid price number' });
   if (!tourDuration) return res.status(400).json({ error: 'Invalid duration' });
