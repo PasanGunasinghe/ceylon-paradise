@@ -2,6 +2,7 @@ const cors = require('cors');
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const sharp = require('sharp');
+const multer = require('multer');
 require('dotenv').config();
 
 const { connectDB, sql, pool } = require('./src/config/db');
@@ -9,6 +10,10 @@ const { generateToken, authenticateToken, requireRole } = require('./src/auth');
 const { state, getNextId } = require('./src/fallbackStore');
 
 const app = express();
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 },
+});
 const allowedOrigins = new Set([
   'https://ceylonparadiseexpedition.com',
   'https://www.ceylonparadiseexpedition.com',
@@ -728,14 +733,17 @@ app.get('/api/tours/search', async (req, res) => {
   res.json(filtered);
 });
 
-app.post('/api/tours', authenticateToken, requireRole('admin'), async (req, res) => {
+app.post('/api/tours', authenticateToken, requireRole('admin'), upload.single('image'), async (req, res) => {
+  if (req.file) {
+    req.body.image_url = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+  }
   const tourTitle = String(req.body.title || req.body.name || '').trim();
   const tourPrice = Number(req.body.price);
   const tourDuration = String(req.body.duration || 'Flexible').trim();
   const tourDescription = String(req.body.description || '').trim();
   const tourCategory = String(req.body.category || 'General').trim();
   const tourLocation = String(req.body.location || req.body.destination || '').trim();
-  const tourImages = req.body.images ?? req.body.image_url;
+  const tourImages = parseJsonField(req.body.images ?? req.body.image_url);
   const tourHighlights = req.body.highlights ?? req.body.itinerary;
   const tourAvailability = req.body.availability || 'Available';
   const storedTourImages = await compressImageValue(tourImages);
@@ -785,7 +793,10 @@ app.post('/api/tours', authenticateToken, requireRole('admin'), async (req, res)
   }
 });
 
-app.put('/api/tours/:id', authenticateToken, requireRole('admin'), async (req, res) => {
+app.put('/api/tours/:id', authenticateToken, requireRole('admin'), upload.single('image'), async (req, res) => {
+  if (req.file) {
+    req.body.image_url = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+  }
   const { id } = req.params;
   if (!Number.isInteger(Number(id))) return res.status(400).json({ message: 'Invalid tour id' });
   const tourTitle = String(req.body.title || req.body.name || '').trim();
@@ -794,7 +805,7 @@ app.put('/api/tours/:id', authenticateToken, requireRole('admin'), async (req, r
   const tourDescription = String(req.body.description || '').trim();
   const tourCategory = String(req.body.category || 'General').trim();
   const tourLocation = String(req.body.location || req.body.destination || '').trim();
-  const tourImages = req.body.images ?? req.body.image_url;
+  const tourImages = parseJsonField(req.body.images ?? req.body.image_url);
   const tourHighlights = req.body.highlights ?? req.body.itinerary;
   const tourAvailability = req.body.availability || 'Available';
   const storedTourImages = await compressImageValue(tourImages);

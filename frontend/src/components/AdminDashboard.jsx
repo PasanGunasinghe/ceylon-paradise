@@ -24,6 +24,7 @@ const emptyTourForm = {
   category: '',
   destination: '',
   image_url: '',
+  image_file: null,
   availability: 'Available',
   itinerary: '',
 };
@@ -264,7 +265,7 @@ export default function AdminDashboard() {
     const file = event.target.files?.[0];
     if (!file) return;
     const imgData = await toDataUrl(file);
-    setter((prev) => ({ ...prev, [key]: imgData }));
+    setter((prev) => ({ ...prev, [key]: imgData, image_file: file }));
   };
 
   const saveTour = async (event) => {
@@ -272,22 +273,25 @@ export default function AdminDashboard() {
     beginMutation();
     const isEditing = Boolean(editingTourId);
     const price = Number(tourForm.price);
-    if (!tourForm.title.trim() || !Number.isFinite(price) || !tourForm.duration || !tourForm.category) {
+    const title = tourForm.title.trim();
+    const description = tourForm.description.trim();
+    const imageValue = tourForm.image_file || tourForm.image_url;
+    if (!title || !description || !Number.isFinite(price) || !tourForm.duration || !tourForm.category || !imageValue) {
       window.alert('Please fill all required fields correctly!');
       return;
     }
-    const payload = {
-      title: tourForm.title.trim(),
-      price,
-      duration: tourForm.duration,
-      description: tourForm.description.trim(),
-      category: tourForm.category,
-      location: tourForm.destination,
-      image_url: tourForm.image_url,
-      images: asArray(tourForm.image_url),
-      highlights: asArray(tourForm.itinerary),
-      availability: tourForm.availability,
-    };
+    const payload = new FormData();
+    payload.append('title', title);
+    payload.append('price', String(price));
+    payload.append('duration', tourForm.duration);
+    payload.append('description', description);
+    payload.append('category', tourForm.category);
+    payload.append('location', tourForm.destination || '');
+    payload.append('highlights', JSON.stringify(asArray(tourForm.itinerary)));
+    payload.append('availability', tourForm.availability || 'Available');
+    payload.append('image_url', tourForm.image_url || '');
+    payload.append('images', JSON.stringify(asArray(tourForm.image_url)));
+    if (tourForm.image_file) payload.append('image', tourForm.image_file);
     try {
       const savedTour = editingTourId
         ? await apiClient.updateTour(editingTourId, payload, token)
@@ -319,6 +323,7 @@ export default function AdminDashboard() {
       category: tour.category || '',
       destination: tour.destination || '',
       image_url: tour.image_url || '',
+      image_file: null,
       availability: tour.availability || 'Available',
       itinerary: tour.itinerary || '',
     });
