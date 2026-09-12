@@ -275,7 +275,7 @@ export default function AdminDashboard() {
     console.log('--- ADD TOUR SUBMIT TRIGGERED ---', tourForm);
     beginMutation();
     const isEditing = Boolean(editingTourId);
-    const price = Number(tourForm.price);
+    const price = Number(tourForm.price) || 0;
     const titleValue = String(tourForm.title ?? '').trim();
     const description = tourForm.description.trim();
     const missingFields = {
@@ -296,7 +296,7 @@ export default function AdminDashboard() {
     setTourValidation({});
     const payload = new FormData();
     payload.append('title', titleValue);
-    payload.append('price', String(price));
+    payload.append('price', String(Number(tourForm.price) || 0));
     payload.append('duration', tourForm.duration);
     payload.append('description', description);
     payload.append('category', tourForm.category);
@@ -324,6 +324,7 @@ export default function AdminDashboard() {
       setMutationSuccess(isEditing ? 'Tour updated successfully.' : 'Tour created successfully.');
     } catch (error) {
       console.error('Submit Error:', error);
+      console.error('Submit Error Response:', error.response?.data);
       setMutationError(error.message || 'Unable to save tour package.');
       setMutationSuccess('');
       return;
