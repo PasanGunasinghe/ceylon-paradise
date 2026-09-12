@@ -167,6 +167,8 @@ export default function AdminDashboard() {
   };
 
   const loadData = async () => {
+    if (!token || !user || user.role !== 'admin') return;
+
     const headers = { ...getAuthHeaders(), 'Content-Type': 'application/json' };
 
     try {
@@ -181,16 +183,25 @@ export default function AdminDashboard() {
         fetchWithAuth(`${API_BASE_URL}/reviews`, { headers }),
       ]);
 
-      const toursData = tourRes.ok ? await tourRes.json() : [];
-      const bookingsData = bookingRes.ok ? await bookingRes.json() : [];
-      const usersData = userRes.ok ? await userRes.json() : [];
-      const inquiryData = inquiryRes.ok ? await inquiryRes.json() : [];
+      const readArray = async (response) => {
+        if (!response.ok) return [];
+        const data = await response.json();
+        if (Array.isArray(data)) return data;
+        if (Array.isArray(data.items)) return data.items;
+        if (Array.isArray(data.data)) return data.data;
+        return [];
+      };
+
+      const toursData = await readArray(tourRes);
+      const bookingsData = await readArray(bookingRes);
+      const usersData = await readArray(userRes);
+      const inquiryData = await readArray(inquiryRes);
       const pinData = localStorage.getItem('custom_map_pins_reset_v2') === 'true'
         ? []
-        : (pinRes.ok ? await pinRes.json() : []);
-      const destinationData = destinationRes.ok ? await destinationRes.json() : [];
-      const memoryData = memoryRes.ok ? await memoryRes.json() : [];
-      const reviewData = reviewRes.ok ? await reviewRes.json() : [];
+        : await readArray(pinRes);
+      const destinationData = await readArray(destinationRes);
+      const memoryData = await readArray(memoryRes);
+      const reviewData = await readArray(reviewRes);
 
       setTours(toursData);
       setBookings(bookingsData);
@@ -226,11 +237,13 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
+    if (!token || !user || user.role !== 'admin') return undefined;
+
     loadData();
     const onBookingUpdate = () => loadData();
     window.addEventListener('cp-bookings-updated', onBookingUpdate);
     return () => window.removeEventListener('cp-bookings-updated', onBookingUpdate);
-  }, []);
+  }, [token, user]);
 
   const handleTourChange = (event) => {
     const { name, value } = event.target;
