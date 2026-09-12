@@ -1,25 +1,48 @@
-import { fetchWithAuth } from '../auth';
+import axios from 'axios';
 
 const configuredApiUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, '');
 const API_BASE_URL = configuredApiUrl || (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
 
-async function request(path, options = {}) {
-  const isFormData = options.body instanceof FormData;
-  const headers = {
-    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
-    ...(options.headers || {}),
-  };
-  const response = await fetchWithAuth(`${API_BASE_URL}${path}`, {
-    ...options,
-    headers,
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const error = new Error(data.message || `Request failed: ${response.status}`);
-    error.response = { status: response.status, data };
-    throw error;
+const axiosClient = axios.create({ baseURL: API_BASE_URL });
+
+axiosClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status;
+    const message = error.response?.data?.message || error.response?.data?.error || '';
+
+    if (status === 403 && String(message).toLowerCase().includes('invalid or expired token')) {
+      localStorage.removeItem('ceylon_paradise_token');
+      localStorage.removeItem('ceylon_paradise_user');
+      localStorage.removeItem('token');
+      if (window.location.pathname !== '/login') window.location.assign('/login');
+    }
+
+    return Promise.reject(error);
   }
-  return data;
+);
+
+async function request(path, options = {}) {
+  const body = options.body instanceof FormData || typeof options.body !== 'string'
+    ? options.body
+    : JSON.parse(options.body);
+
+  try {
+    const response = await axiosClient.request({
+      url: path,
+      method: options.method || 'GET',
+      headers: options.headers,
+      data: body,
+    });
+    return response.data;
+  } catch (error) {
+    const responseData = error.response?.data || {};
+    const normalizedError = new Error(
+      responseData.message || `Request failed: ${error.response?.status || 'network error'}`
+    );
+    normalizedError.response = error.response;
+    throw normalizedError;
+  }
 }
 
 export const apiClient = {

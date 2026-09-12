@@ -12,15 +12,7 @@ export default function MapPlanner({ destinations = [], orderedRoute = [], focus
       const longitude = Number(destination.longitude ?? destination.lng ?? destination.lon);
       return Number.isFinite(latitude) && Number.isFinite(longitude) && latitude !== 0 && longitude !== 0;
     });
-    const existingKeys = new Set(validDestinations.map((destination) => `${destination.name}-${destination.lat || ''}-${destination.lng || destination.lon || ''}`));
-    const newPins = customPins.filter((pin) => {
-      const lat = Number(pin.latitude ?? pin.lat);
-      const lng = Number(pin.longitude ?? pin.lng);
-      if (!Number.isFinite(lat) || !Number.isFinite(lng) || lat === 0 || lng === 0) return false;
-      const key = `${pin.name}-${lat}-${lng}`;
-      return !existingKeys.has(key);
-    });
-    return [...validDestinations, ...newPins];
+    return validDestinations;
   }, [destinations]);
 
   const handleSearch = async (event) => {
