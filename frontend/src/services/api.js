@@ -58,7 +58,7 @@ async function request(path, options = {}) {
   } catch (error) {
     const responseData = error.response?.data || {};
     const normalizedError = new Error(
-      responseData.message || `Request failed: ${error.response?.status || 'network error'}`
+      responseData.message || responseData.error || `Request failed: ${error.response?.status || 'network error'}`
     );
     normalizedError.response = error.response;
     throw normalizedError;

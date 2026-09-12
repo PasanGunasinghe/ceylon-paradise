@@ -294,22 +294,21 @@ export default function AdminDashboard() {
       return;
     }
     setTourValidation({});
-    const payload = new FormData();
-    payload.append('title', titleValue);
-    payload.append('price', String(Number(tourForm.price) || 0));
-    payload.append('duration', tourForm.duration);
-    payload.append('description', description);
-    payload.append('category', tourForm.category);
-    payload.append('location', tourForm.destination || '');
-    payload.append('highlights', JSON.stringify(asArray(tourForm.itinerary)));
-    payload.append('availability', tourForm.availability || 'Available');
-    if (tourForm.image_file) {
-      payload.append('image', tourForm.image_file);
-    } else {
-      payload.append('image_url', tourForm.image_url || '');
-      payload.append('images', JSON.stringify(asArray(tourForm.image_url)));
-    }
-    console.log('Tour FormData payload:', Array.from(payload.entries()));
+    const imageValue = tourForm.image_url || '';
+    const payload = {
+      title: titleValue,
+      price: Number(tourForm.price) || 0,
+      duration: tourForm.duration || 'Flexible',
+      description,
+      category: tourForm.category || 'General',
+      location: tourForm.destination || '',
+      availability: tourForm.availability || 'Available',
+      itinerary: tourForm.itinerary || '',
+      image_url: imageValue,
+      images: imageValue ? [imageValue] : [],
+      highlights: asArray(tourForm.itinerary),
+    };
+    console.log('Tour JSON payload:', payload);
     try {
       const savedTour = editingTourId
         ? await apiClient.updateTour(editingTourId, payload, token)
