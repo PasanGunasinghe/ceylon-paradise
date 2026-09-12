@@ -10,6 +10,15 @@ const { generateToken, authenticateToken, requireRole } = require('./src/auth');
 const { state, getNextId } = require('./src/fallbackStore');
 
 const app = express();
+const databaseMutationError = (error, resource) => {
+  if (error?.code === '23503') {
+    return { status: 409, message: `Cannot modify ${resource} because related records still exist.` };
+  }
+  if (error?.code === '23505') {
+    return { status: 409, message: `A ${resource} with the same unique value already exists.` };
+  }
+  return null;
+};
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 50 * 1024 * 1024 },
@@ -422,6 +431,8 @@ app.post('/api/memories', authenticateToken, requireRole('admin'), async (req, r
           OUTPUT INSERTED.* VALUES (@title, @image_url, @summary, @pinned)`);
       return res.status(201).json(result.recordset[0]);
     } catch (error) {
+      const constraintError = databaseMutationError(error, 'memory');
+      if (constraintError) return res.status(constraintError.status).json({ message: constraintError.message, code: error.code });
       return res.status(500).json({ message: 'Failed to create memory', error: error.message });
     }
   }
@@ -449,6 +460,8 @@ app.delete('/api/memories/:id', authenticateToken, requireRole('admin'), async (
     if (!result.rowsAffected[0]) return res.status(404).json({ message: 'Memory not found' });
     return res.json({ message: 'Memory deleted successfully' });
   } catch (error) {
+    const constraintError = databaseMutationError(error, 'memory');
+    if (constraintError) return res.status(constraintError.status).json({ message: constraintError.message, code: error.code });
     return res.status(500).json({ message: 'Failed to delete memory', error: error.message });
   }
 });
@@ -476,6 +489,8 @@ app.put('/api/memories/:id', authenticateToken, requireRole('admin'), async (req
     if (!result.rowsAffected[0]) return res.status(404).json({ message: 'Memory not found' });
     return res.json({ id, title, image_url, summary: summary || '', pinned: Boolean(pinned) });
   } catch (error) {
+    const constraintError = databaseMutationError(error, 'memory');
+    if (constraintError) return res.status(constraintError.status).json({ message: constraintError.message, code: error.code });
     return res.status(500).json({ message: 'Failed to update memory', error: error.message });
   }
 });
@@ -795,6 +810,8 @@ app.post('/api/tours', authenticateToken, requireRole('admin'), upload.single('i
 
     return res.status(201).json(result.recordset[0]);
   } catch (error) {
+    const constraintError = databaseMutationError(error, 'tour');
+    if (constraintError) return res.status(constraintError.status).json({ message: constraintError.message, code: error.code });
     return res.status(500).json({ message: 'Failed to create tour', error: error.message });
   }
 });
@@ -854,6 +871,8 @@ app.put('/api/tours/:id', authenticateToken, requireRole('admin'), upload.single
     if (!result.recordset.length) return res.status(404).json({ message: 'Tour not found' });
     return res.json(result.recordset[0]);
   } catch (error) {
+    const constraintError = databaseMutationError(error, 'tour');
+    if (constraintError) return res.status(constraintError.status).json({ message: constraintError.message, code: error.code });
     return res.status(500).json({ message: 'Failed to update tour', error: error.message });
   }
 });
@@ -873,6 +892,8 @@ app.delete('/api/tours/:id', authenticateToken, requireRole('admin'), async (req
       .query('DELETE FROM dbo.TourPackages WHERE id = @id');
     return res.json({ message: 'Tour deleted successfully' });
   } catch (error) {
+    const constraintError = databaseMutationError(error, 'tour');
+    if (constraintError) return res.status(constraintError.status).json({ message: constraintError.message, code: error.code });
     return res.status(500).json({ message: 'Failed to delete tour', error: error.message });
   }
 });
@@ -1055,6 +1076,8 @@ app.post('/api/bookings', authenticateToken, async (req, res) => {
 
     return res.status(201).json({ message: 'Booking inquiry submitted successfully', booking: result.recordset[0] });
   } catch (error) {
+    const constraintError = databaseMutationError(error, 'booking');
+    if (constraintError) return res.status(constraintError.status).json({ message: constraintError.message, code: error.code });
     return res.status(500).json({ message: 'Failed to submit booking inquiry', error: error.message });
   }
 });
@@ -1193,6 +1216,8 @@ app.post('/api/reviews', authenticateToken, async (req, res) => {
         VALUES (@tour_id, @user_name, @comment, @rating, @images_json)`);
     return res.status(201).json({ ...result.recordset[0], images: compressedImages });
   } catch (error) {
+    const constraintError = databaseMutationError(error, 'review');
+    if (constraintError) return res.status(constraintError.status).json({ message: constraintError.message, code: error.code });
     return res.status(500).json({ message: 'Failed to submit review', error: error.message });
   }
 });

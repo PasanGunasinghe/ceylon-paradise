@@ -1,9 +1,66 @@
+import { Component, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getTourImage } from '../api';
 
 const fallbackImage = 'https://images.unsplash.com/photo-1546708973-b339540b5162?auto=format&fit=crop&w=1200&q=80';
+const defaultItinerary = ['Arrival and welcome', 'Signature destination experience', 'Scenic farewell'];
 
-export default function TourDetailPage({ tours = [], onBookNow }) {
+const normalizeItinerary = (value) => {
+  if (value === null || value === undefined || value === '') return defaultItinerary;
+
+  if (Array.isArray(value)) {
+    return value
+      .flatMap((item) => (typeof item === 'string' ? [item] : item && typeof item === 'object' ? [JSON.stringify(item)] : []))
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) return normalizeItinerary(parsed);
+      if (parsed && typeof parsed === 'object') return [JSON.stringify(parsed)];
+    } catch {
+      // Treat non-JSON text as a human-readable itinerary.
+    }
+
+    return trimmed
+      .split(/[\n,]/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  if (typeof value === 'object') return [JSON.stringify(value)];
+  return defaultItinerary;
+};
+
+class TourDetailErrorBoundary extends Component {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error) {
+    console.error('Tour detail render error:', error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="page-shell px-4 py-20 text-center">
+          <p className="eyebrow justify-center">Package unavailable</p>
+          <h1 className="mt-5 text-3xl font-black text-slate-900">We could not display this tour.</h1>
+          <Link to="/tours" className="mt-8 inline-flex rounded-full bg-slate-900 px-6 py-3 font-semibold text-white">Back to tours</Link>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+function TourDetailPage({ tours = [], onBookNow }) {
   const { tourId } = useParams();
   const tour = tours.find((item) => String(item.id) === String(tourId));
 
@@ -19,7 +76,7 @@ export default function TourDetailPage({ tours = [], onBookNow }) {
     );
   }
 
-  const itinerary = tour.itinerary ? tour.itinerary.split(',').map((item) => item.trim()).filter(Boolean) : ['Arrival and welcome', 'Signature destination experience', 'Scenic farewell'];
+  const itinerary = useMemo(() => normalizeItinerary(tour.itinerary), [tour.itinerary]);
 
   return (
     <div className="page-shell pb-20">
@@ -64,7 +121,7 @@ export default function TourDetailPage({ tours = [], onBookNow }) {
             <h2 className="mt-2 text-3xl font-black text-slate-900">Day-by-day</h2>
             <div className="mt-6 space-y-3">
               {itinerary.map((stop, index) => (
-                <div key={stop} className="flex gap-4 rounded-2xl bg-slate-50 p-4">
+                <div key={`${index}-${stop}`} className="flex gap-4 rounded-2xl bg-slate-50 p-4">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-sm font-bold text-white">{index + 1}</div>
                   <div className="text-slate-700">{stop}</div>
                 </div>
@@ -74,5 +131,13 @@ export default function TourDetailPage({ tours = [], onBookNow }) {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function SafeTourDetailPage(props) {
+  return (
+    <TourDetailErrorBoundary>
+      <TourDetailPage {...props} />
+    </TourDetailErrorBoundary>
   );
 }
