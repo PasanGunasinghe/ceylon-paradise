@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { isAuthenticationRequest } from '../auth';
 
 const configuredApiUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, '');
 const API_BASE_URL = configuredApiUrl || (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
@@ -11,7 +12,11 @@ axiosClient.interceptors.response.use(
     const status = error.response?.status;
     const message = error.response?.data?.message || error.response?.data?.error || '';
 
-    if (status === 403 && String(message).toLowerCase().includes('invalid or expired token')) {
+    if (
+      status === 403 &&
+      !isAuthenticationRequest(error.config?.url) &&
+      String(message).toLowerCase().includes('invalid or expired token')
+    ) {
       localStorage.removeItem('ceylon_paradise_token');
       localStorage.removeItem('ceylon_paradise_user');
       localStorage.removeItem('token');

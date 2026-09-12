@@ -20,10 +20,17 @@ export function getAuthHeaders() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+export function isAuthenticationRequest(url = '') {
+  const pathname = new URL(url, window.location.origin).pathname.toLowerCase();
+  return pathname === '/login'
+    || pathname.endsWith('/login')
+    || pathname.includes('/auth/');
+}
+
 export async function fetchWithAuth(url, options = {}) {
   const response = await fetch(url, options);
 
-  if (response.status === 403) {
+  if (response.status === 403 && !isAuthenticationRequest(url)) {
     const body = await response.clone().json().catch(() => null);
     if (body?.message === 'Invalid or expired token') {
       authStorage.clearToken();
