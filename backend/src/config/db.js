@@ -2,6 +2,10 @@ require('dotenv').config();
 
 const { Pool } = require('pg');
 
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL is required for the Neon PostgreSQL connection');
+}
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
@@ -81,7 +85,7 @@ const connectDB = async () => {
   try {
     const client = await pool.connect();
     client.release();
-    console.log('✅ Supabase PostgreSQL connected');
+    console.log('✅ Neon PostgreSQL connected');
   } catch (err) {
     console.error('❌ Database connection failed:', err.message);
     throw err;

@@ -32,10 +32,10 @@ const corsOptions = {
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', 'Cache-Control'],
 };
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+app.options('*', cors(corsOptions), (req, res) => res.sendStatus(204));
 app.use('/uploads', express.static('uploads'));
 const PORT = process.env.PORT || 5000;
 let databaseReady = false;
@@ -1229,19 +1229,35 @@ connectDB()
   .then(async () => {
     await pool.request().batch(`
       CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL UNIQUE, password TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'customer', phone TEXT);
-      CREATE TABLE IF NOT EXISTS destinations (id SERIAL PRIMARY KEY, name TEXT NOT NULL, description TEXT, image_url TEXT, region TEXT NOT NULL DEFAULT '', rating NUMERIC(3, 2) DEFAULT 5, is_popular BOOLEAN NOT NULL DEFAULT false);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS password TEXT;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS phone TEXT;
+      CREATE TABLE IF NOT EXISTS destinations (id SERIAL PRIMARY KEY, name TEXT NOT NULL, description TEXT, image_url TEXT, region TEXT NOT NULL DEFAULT '', rating NUMERIC(3, 2) DEFAULT 5, is_popular BOOLEAN NOT NULL DEFAULT false, created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP);
       CREATE TABLE IF NOT EXISTS tourpackages (id SERIAL PRIMARY KEY, title TEXT NOT NULL, price NUMERIC(10, 2) NOT NULL, duration TEXT NOT NULL, description TEXT, category TEXT NOT NULL, location TEXT, images_json TEXT, highlights TEXT, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+      ALTER TABLE destinations ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP;
       ALTER TABLE tourpackages ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
-      CREATE TABLE IF NOT EXISTS bookinginquiries (id SERIAL PRIMARY KEY, user_name TEXT NOT NULL, user_email TEXT NOT NULL, tour_id INTEGER NOT NULL, booking_date DATE NOT NULL, status TEXT NOT NULL DEFAULT 'pending', notes TEXT);
+      CREATE TABLE IF NOT EXISTS bookinginquiries (id SERIAL PRIMARY KEY, user_name TEXT NOT NULL, user_email TEXT NOT NULL, tour_id INTEGER NOT NULL, booking_date DATE NOT NULL, status TEXT NOT NULL DEFAULT 'pending', notes TEXT, created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP);
+      ALTER TABLE bookinginquiries ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP;
       CREATE TABLE IF NOT EXISTS memories (id SERIAL PRIMARY KEY, title TEXT NOT NULL, image_url TEXT NOT NULL, summary TEXT, pinned BOOLEAN NOT NULL DEFAULT false, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+      ALTER TABLE memories ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP;
       CREATE TABLE IF NOT EXISTS mappins (id SERIAL PRIMARY KEY, title TEXT NOT NULL, latitude NUMERIC(10, 7) NOT NULL, longitude NUMERIC(10, 7) NOT NULL, day_number INTEGER NOT NULL DEFAULT 1, details TEXT, photo_url TEXT, category TEXT);
+      ALTER TABLE mappins ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP;
       CREATE TABLE IF NOT EXISTS routeinquiries (id SERIAL PRIMARY KEY, user_id INTEGER, user_name TEXT NOT NULL, user_email TEXT NOT NULL, route_json TEXT NOT NULL, stops_json TEXT, travelers INTEGER NOT NULL DEFAULT 1, status TEXT NOT NULL DEFAULT 'Pending', notes TEXT, admin_notes TEXT, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+      ALTER TABLE routeinquiries ADD COLUMN IF NOT EXISTS user_id INTEGER;
+      ALTER TABLE routeinquiries ADD COLUMN IF NOT EXISTS user_name TEXT;
+      ALTER TABLE routeinquiries ADD COLUMN IF NOT EXISTS user_email TEXT;
+      ALTER TABLE routeinquiries ADD COLUMN IF NOT EXISTS route_json TEXT;
+      ALTER TABLE routeinquiries ADD COLUMN IF NOT EXISTS stops_json TEXT;
+      ALTER TABLE routeinquiries ADD COLUMN IF NOT EXISTS travelers INTEGER DEFAULT 1;
+      ALTER TABLE routeinquiries ADD COLUMN IF NOT EXISTS admin_notes TEXT;
+      ALTER TABLE routeinquiries ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP;
       CREATE TABLE IF NOT EXISTS notifications (id SERIAL PRIMARY KEY, user_id INTEGER NOT NULL, message TEXT NOT NULL, is_read BOOLEAN NOT NULL DEFAULT false, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+      ALTER TABLE notifications ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP;
       CREATE TABLE IF NOT EXISTS reviews (id SERIAL PRIMARY KEY, tour_id INTEGER NOT NULL, user_name TEXT NOT NULL, comment TEXT NOT NULL, rating INTEGER NOT NULL, images_json TEXT, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+      ALTER TABLE reviews ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP;
       CREATE TABLE IF NOT EXISTS categories (id SERIAL PRIMARY KEY, name TEXT NOT NULL UNIQUE, slug TEXT NOT NULL UNIQUE, description TEXT);
     `);
     databaseReady = true;
-    console.log('✅ Supabase PostgreSQL schema is ready');
+    console.log('✅ Neon PostgreSQL schema is ready');
   })
   .catch(() => {
     databaseReady = false;
