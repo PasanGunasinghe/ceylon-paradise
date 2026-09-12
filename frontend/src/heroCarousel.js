@@ -25,6 +25,14 @@ export function useHeroCarousel() {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
+    heroCarouselImages.forEach(({ src }) => {
+      const image = new Image();
+      image.decoding = 'async';
+      image.src = src;
+    });
+  }, []);
+
+  useEffect(() => {
     if (heroCarouselImages.length < 2) return undefined;
     const interval = window.setInterval(() => {
       setVisible(false);

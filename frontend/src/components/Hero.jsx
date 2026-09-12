@@ -1,7 +1,8 @@
+import { memo } from 'react';
 import { useHeroCarousel } from '../heroCarousel';
 import { useVideoPlaylist } from '../videoPlaylist';
 
-export default function Hero() {
+function Hero() {
   const { activeVideoSlot, handleTimeUpdate, setVideoRef, switchToNextVideo, videoSources } = useVideoPlaylist();
   const { activeDestination, visible: carouselVisible } = useHeroCarousel();
 
@@ -15,7 +16,7 @@ export default function Hero() {
           autoPlay
           muted
           playsInline
-          preload="auto"
+          preload={slot === activeVideoSlot ? 'auto' : slot === 1 - activeVideoSlot ? 'metadata' : 'none'}
           onTimeUpdate={(event) => handleTimeUpdate(slot, event)}
           onEnded={() => slot === activeVideoSlot && switchToNextVideo()}
           className={`will-change-transform transform-gpu translate-z-0 object-cover w-full h-full absolute inset-0 transition-opacity duration-1000 ease-in-out ${activeVideoSlot === slot ? 'z-10 opacity-100' : 'z-0 opacity-0'}`}
@@ -59,3 +60,5 @@ export default function Hero() {
     </section>
   );
 }
+
+export default memo(Hero);

@@ -45,7 +45,7 @@ export default function HomePage({ authUser, destinations = [], tours = [], onBo
             autoPlay
             muted
             playsInline
-            preload="auto"
+            preload={slot === activeVideoSlot ? 'auto' : slot === 1 - activeVideoSlot ? 'metadata' : 'none'}
             onTimeUpdate={(event) => handleTimeUpdate(slot, event)}
             onEnded={() => slot === activeVideoSlot && switchToNextVideo()}
             className={`will-change-transform transform-gpu translate-z-0 object-cover w-full h-full absolute inset-0 transition-opacity duration-1000 ease-in-out ${activeVideoSlot === slot ? 'z-10 opacity-100' : 'z-0 opacity-0'}`}
