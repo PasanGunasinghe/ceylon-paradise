@@ -1,29 +1,53 @@
-import { memo } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import { useHeroCarousel } from '../heroCarousel';
-import { useVideoPlaylist } from '../videoPlaylist';
+import { videoPlaylist } from '../videoPlaylist';
 
 function Hero() {
-  const { activeVideoSlot, handleTimeUpdate, setVideoRef, switchToNextVideo, videoSources } = useVideoPlaylist();
   const { activeDestination, visible: carouselVisible } = useHeroCarousel();
+  const videoRef = useRef(null);
+  const videoIndexRef = useRef(0);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return undefined;
+
+    video.src = videoPlaylist[videoIndexRef.current];
+    video.load();
+    video.play().catch(() => {});
+
+    return () => {
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+    };
+  }, []);
+
+  const advanceVideo = () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    videoIndexRef.current = (videoIndexRef.current + 1) % videoPlaylist.length;
+    const nextSource = videoPlaylist[videoIndexRef.current];
+    if (video.currentSrc.endsWith(nextSource) || video.src.endsWith(nextSource)) return;
+
+    video.src = nextSource;
+    video.load();
+    video.play().catch(() => {});
+  };
 
   return (
     <section className="relative overflow-hidden bg-slate-950 text-white">
-      {videoSources.map((source, slot) => (
-        <video
-          key={slot}
-          ref={setVideoRef(slot)}
-          src={source}
-          autoPlay
-          muted
-          playsInline
-          preload={slot === activeVideoSlot ? 'auto' : slot === 1 - activeVideoSlot ? 'metadata' : 'none'}
-          onTimeUpdate={(event) => handleTimeUpdate(slot, event)}
-          onEnded={() => slot === activeVideoSlot && switchToNextVideo()}
-          className={`will-change-transform transform-gpu translate-z-0 object-cover w-full h-full absolute inset-0 transition-opacity duration-1000 ease-in-out ${activeVideoSlot === slot ? 'z-10 opacity-100' : 'z-0 opacity-0'}`}
-        >
-          <track kind="captions" />
-        </video>
-      ))}
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        playsInline
+        preload="none"
+        onEnded={advanceVideo}
+        className="will-change-transform transform-gpu translate-z-0 object-cover w-full h-full absolute inset-0 z-10 opacity-100"
+      >
+        <track kind="captions" />
+      </video>
       <div className="absolute inset-0 z-20 bg-slate-900/50" />
       <div className="relative z-30 mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 sm:py-24 md:grid-cols-2 lg:px-8">
         <div>

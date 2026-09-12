@@ -20,7 +20,7 @@ const fallbackImage = 'https://images.unsplash.com/photo-1586861635167-e5223aadc
 const imageWithFallback = (src) => src || fallbackImage;
 
 export default function HomePage({ authUser, destinations = [], tours = [], onBookNow, onCheckout }) {
-  const { activeVideoSlot, handleTimeUpdate, setVideoRef, switchToNextVideo, videoSources } = useVideoPlaylist();
+  const { videoRef, switchToNextVideo } = useVideoPlaylist();
   const [syncedDestinations, setSyncedDestinations] = useState(destinations);
   const [syncedTours, setSyncedTours] = useState(normalizeTours(tours));
   const destinationCards = syncedDestinations.filter((destination) => destination && destination.name).slice(0, 3);
@@ -37,22 +37,17 @@ export default function HomePage({ authUser, destinations = [], tours = [], onBo
     <div className="page-shell">
       <section className="relative overflow-hidden bg-slate-950 text-white">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.35),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(251,191,36,0.18),_transparent_30%)]" />
-        {videoSources.map((source, slot) => (
-          <video
-            key={slot}
-            ref={setVideoRef(slot)}
-            src={source}
-            autoPlay
-            muted
-            playsInline
-            preload={slot === activeVideoSlot ? 'auto' : slot === 1 - activeVideoSlot ? 'metadata' : 'none'}
-            onTimeUpdate={(event) => handleTimeUpdate(slot, event)}
-            onEnded={() => slot === activeVideoSlot && switchToNextVideo()}
-            className={`will-change-transform transform-gpu translate-z-0 object-cover w-full h-full absolute inset-0 transition-opacity duration-1000 ease-in-out ${activeVideoSlot === slot ? 'z-10 opacity-100' : 'z-0 opacity-0'}`}
-          >
-            <track kind="captions" />
-          </video>
-        ))}
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          playsInline
+          preload="none"
+          onEnded={switchToNextVideo}
+          className="will-change-transform transform-gpu translate-z-0 object-cover w-full h-full absolute inset-0 z-10 opacity-100"
+        >
+          <track kind="captions" />
+        </video>
         <div className="absolute inset-0 z-20 bg-slate-900/50" />
         <div className="relative z-30 mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8 lg:py-32">
           <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] items-center">
