@@ -734,10 +734,12 @@ app.get('/api/tours/search', async (req, res) => {
 });
 
 app.post('/api/tours', authenticateToken, requireRole('admin'), upload.single('image'), async (req, res) => {
+  req.body = req.body || {};
   if (req.file) {
     req.body.image_url = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
   }
-  const tourTitle = String(req.body.title || req.body.name || '').trim();
+  const rawTitle = req.body.title ?? req.body.name ?? '';
+  const tourTitle = String(rawTitle).trim();
   const tourPrice = Number(req.body.price);
   const tourDuration = String(req.body.duration || 'Flexible').trim();
   const tourDescription = String(req.body.description || '').trim();

@@ -42,7 +42,8 @@ axiosClient.interceptors.response.use(
 );
 
 async function request(path, options = {}) {
-  const body = options.body instanceof FormData || typeof options.body !== 'string'
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+  const body = isFormData || typeof options.body !== 'string'
     ? options.body
     : JSON.parse(options.body);
 
@@ -50,8 +51,12 @@ async function request(path, options = {}) {
     const response = await axiosClient.request({
       url: path,
       method: options.method || 'GET',
-      headers: options.headers,
+      headers: {
+        ...(options.headers || {}),
+        ...(isFormData ? { 'Content-Type': undefined } : {}),
+      },
       data: body,
+      transformRequest: isFormData ? [(data) => data] : undefined,
     });
     return response.data;
   } catch (error) {
