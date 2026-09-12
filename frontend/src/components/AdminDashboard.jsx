@@ -275,10 +275,10 @@ export default function AdminDashboard() {
     beginMutation();
     const isEditing = Boolean(editingTourId);
     const price = Number(tourForm.price);
-    const title = tourForm.title.trim();
+    const titleValue = String(tourForm.title ?? '').trim();
     const description = tourForm.description.trim();
     const missingFields = {
-      title: title.length < 2 || title.length > 200,
+      title: titleValue.length < 2 || titleValue.length > 200,
       price: !tourForm.price.trim() || !Number.isFinite(price),
       duration: !tourForm.duration,
       category: !tourForm.category,
@@ -294,7 +294,7 @@ export default function AdminDashboard() {
     }
     setTourValidation({});
     const payload = new FormData();
-    payload.append('title', title);
+    payload.append('title', titleValue);
     payload.append('price', String(price));
     payload.append('duration', tourForm.duration);
     payload.append('description', description);
@@ -308,6 +308,7 @@ export default function AdminDashboard() {
       payload.append('image_url', tourForm.image_url || '');
       payload.append('images', JSON.stringify(asArray(tourForm.image_url)));
     }
+    console.log('Tour FormData payload:', Array.from(payload.entries()));
     try {
       const savedTour = editingTourId
         ? await apiClient.updateTour(editingTourId, payload, token)
