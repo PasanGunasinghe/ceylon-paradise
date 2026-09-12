@@ -27,10 +27,23 @@ export function isAuthenticationRequest(url = '') {
     || pathname.includes('/auth/');
 }
 
+export function isProtectedRoute(pathname = window.location.pathname) {
+  const normalizedPath = pathname.toLowerCase();
+  return normalizedPath === '/admin'
+    || normalizedPath.startsWith('/admin/')
+    || normalizedPath === '/dashboard'
+    || normalizedPath.startsWith('/dashboard/');
+}
+
 export async function fetchWithAuth(url, options = {}) {
   const response = await fetch(url, options);
 
-  if (response.status === 403 && !isAuthenticationRequest(url)) {
+  if (
+    response.status === 403 &&
+    !isAuthenticationRequest(url) &&
+    isProtectedRoute() &&
+    authStorage.getToken()
+  ) {
     const body = await response.clone().json().catch(() => null);
     if (body?.message === 'Invalid or expired token') {
       authStorage.clearToken();

@@ -167,7 +167,7 @@ export default function AdminDashboard() {
   };
 
   const loadData = async () => {
-    if (!token || !user || user.role !== 'admin') return;
+    if (!authStorage.getToken() || !token || !user || user.role !== 'admin') return;
 
     const headers = { ...getAuthHeaders(), 'Content-Type': 'application/json' };
 
@@ -237,7 +237,7 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    if (!token || !user || user.role !== 'admin') return undefined;
+    if (!authStorage.getToken() || !token || !user || user.role !== 'admin') return undefined;
 
     loadData();
     const onBookingUpdate = () => loadData();
