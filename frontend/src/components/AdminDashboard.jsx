@@ -4,7 +4,7 @@ import { getAuthHeaders, authStorage, fetchWithAuth } from '../auth';
 import { API_BASE_URL, api } from '../api';
 import { apiClient } from '../services/api';
 import MapPinsEditor from './MapPinsEditor';
-import { getInitialList, hasList, writeList } from '../dataStore';
+import { getInitialList, hasList, safeSetLocalStorage, writeList } from '../dataStore';
 import { ClipboardList, MapPin, Star, Users } from 'lucide-react';
 
 const STATUS_OPTIONS = ['Pending', 'Contacted', 'Negotiating', 'Confirmed', 'Cancelled'];
@@ -165,7 +165,7 @@ export default function AdminDashboard() {
   }, [token, user, navigate]);
 
   const persistList = (key, value) => {
-    localStorage.setItem(key, JSON.stringify(value));
+    safeSetLocalStorage(key, value);
   };
 
   const loadData = async () => {
