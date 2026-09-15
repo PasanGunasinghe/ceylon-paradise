@@ -57,7 +57,7 @@ const emptyPinForm = {
   dayNumber: '',
 };
 
-const categoryOptions = ['Wildlife & Nature', 'Historical & Cultural', 'Beach & Coastal', 'Adventure & Trekking', 'Wellness & Ayurveda', 'City & Shopping', 'Photography & Scenic'];
+const categoryOptions = ['Wildlife & Nature', 'Historical & Cultural', 'Beach & Coastal', 'Adventure & Trekking', 'Wellness & Ayurveda', 'City & Shopping', 'Photography & Scenic', 'Historical, Culture, Nature, Wildlife & Beach'];
 const durationOptions = ['1 Day', '2 Days / 1 Night', '3 Days / 2 Nights', '5 Days / 4 Nights', '7 Days / 6 Nights', '10+ Days'];
 
 const readStorageList = (key, fallback = []) => {

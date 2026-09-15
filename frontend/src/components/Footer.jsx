@@ -51,7 +51,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="border-t border-[var(--border-soft)] px-4 py-5 text-center text-xs text-[var(--text-muted)]">
-        <p>© 2026 Ceylon Paradise Expeditions. All Rights Reserved. Designed &amp; Developed by S.H.U.P. Gunasinghe</p>
+        <p>© 2026 Ceylon Paradise Expeditions. All Rights Reserved. Designed &amp; Developed by OVERSEEM</p>
       </div>
     </footer>
   );
