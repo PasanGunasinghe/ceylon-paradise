@@ -33,7 +33,7 @@ const seed = async () => {
       await client.query(
         `INSERT INTO users (name, email, password, role)
          VALUES ($1, $2, $3, $4)
-         ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name, role = EXCLUDED.role`,
+         ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name, password = EXCLUDED.password, role = EXCLUDED.role`,
         [user.name, user.email, user.password, user.role],
       );
     }

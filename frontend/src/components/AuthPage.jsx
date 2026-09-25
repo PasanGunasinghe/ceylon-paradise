@@ -34,24 +34,6 @@ export default function AuthPage({ onAuthSuccess, variant = 'user', allowRegiste
         throw new Error('Admin accounts can only be used to sign in.');
       }
 
-      const normalizedEmail = form.email.trim().toLowerCase();
-      const normalizedPassword = form.password.trim();
-
-      if (isAdmin && mode === 'login' && normalizedEmail === 'admin@ceylonparadise.com' && normalizedPassword === 'admin123') {
-        const adminUser = {
-          name: 'S.H.U.P. Gunasinghe',
-          email: 'admin@ceylonparadise.com',
-          role: 'admin',
-          isAuthenticated: true,
-        };
-
-        authStorage.setToken('admin-token');
-        authStorage.setUser(adminUser);
-        onAuthSuccess?.(adminUser);
-        navigate('/admin');
-        return;
-      }
-
       const endpoint = mode === 'login' ? '/auth/login' : '/auth/register';
       const payload = mode === 'login'
         ? { email: form.email, password: form.password }

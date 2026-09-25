@@ -219,7 +219,7 @@ const updateRouteInquiry = async (id, status, adminNotes) => {
 };
 
 app.post('/api/auth/register', async (req, res) => {
-  const { name, email, password, phone, role = 'user' } = req.body;
+  const { name, email, password, phone } = req.body;
 
   if (!name || !email || !password || !phone) {
     return res.status(400).json({ message: 'Name, email, password, and contact number are required' });
@@ -239,7 +239,7 @@ app.post('/api/auth/register', async (req, res) => {
         email,
         phone,
         password: hashedPassword,
-        role,
+        role: 'user',
       };
       state.users.push(newUser);
 
@@ -262,7 +262,7 @@ app.post('/api/auth/register', async (req, res) => {
       .input('email', sql.NVarChar(150), email)
       .input('phone', sql.NVarChar(30), phone)
       .input('password', sql.NVarChar(255), hashedPassword)
-      .input('role', sql.NVarChar(50), role)
+      .input('role', sql.NVarChar(50), 'user')
       .query(`
         INSERT INTO dbo.Users (name, email, phone, password, role)
         OUTPUT INSERTED.*
